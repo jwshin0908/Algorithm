@@ -1,3 +1,3 @@
-# Baekjoon
+# algorithm
 
-Solving algorithm problems in Baekjoon
+Solving algorithm problems in Baekjoon, python-for-coding-test
