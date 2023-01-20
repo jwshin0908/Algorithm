@@ -1,3 +1,3 @@
 # Baekjoon
 
-solving algorithm problems in Baekjoon
+Solving algorithm problems in Baekjoon
