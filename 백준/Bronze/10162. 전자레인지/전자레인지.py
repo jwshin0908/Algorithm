@@ -10,4 +10,4 @@ for i in data:
 if t!=0:
     print(-1)
 else:
-    print(' '.join(map(str, result)))
+    print(' '.join(map(str, result))) # 이 부분 기억하기 -> " ".join(map(str,리스트명))
