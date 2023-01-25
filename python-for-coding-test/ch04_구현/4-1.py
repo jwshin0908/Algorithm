@@ -1,4 +1,6 @@
 # 4-1. 상하좌우(p.110)
+# 시뮬레이션(Simulation) 유형
+
 N = int(input())
 move = input().split()
 
