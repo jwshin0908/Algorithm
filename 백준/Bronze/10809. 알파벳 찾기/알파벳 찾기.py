@@ -5,3 +5,8 @@ for j in range(97, 123):
         print(ascii.index(j), end=' ')
     else:
         print(-1, end=' ')
+        
+# 간단한 코드
+s = input()
+for i in range(97,123):
+    print(s.find(chr(i)), end=' ')
