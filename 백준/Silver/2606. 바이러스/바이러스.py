@@ -10,7 +10,7 @@ graph = [[] for _ in range(n + 1)]
 
 for _ in range(m):
     a, b = map(int, input().split())
-    # 양방향이기에 graph에 동시에 append
+    # 양방향이기에 graph에 두 방향 동시에 append
     graph[a].append(b)
     graph[b].append(a)
 
