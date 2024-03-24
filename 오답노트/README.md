@@ -1,6 +1,8 @@
 코드트리
 
-[Move Text](#1.시뮬레이션)
+[1. 시뮬레이션](#1.-시뮬레이션)
+    [(1) dx dy technique](#(1)-dx-dy-technique)
+    [(2) 객체](#(2)-객체)
 
 # 1. 시뮬레이션
 ## (1) dx dy technique
