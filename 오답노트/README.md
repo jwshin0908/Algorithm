@@ -25,7 +25,7 @@
 ## (1) dx dy technique
 
 <details>
-<summary>코드 토글</summary>
+<summary>Code</summary>
 <div markdown="1">
 
 ```Python3
@@ -110,7 +110,7 @@ print(cnt)
 + 느낀 점
     + 테스트케이스 이외의 다양한 반례 상황 찾아보기
 <details>
-<summary>코드 토글</summary>
+<summary>Code</summary>
 <div markdown="1">
 
 ```Python3
@@ -166,8 +166,9 @@ print(result)
     + ```1 ≤ n ≤ 20 / 1 ≤ m ≤ 10```
 + 알고리즘 설계
     + 무한 loop 내에서 마름모의 중심을 n x n 격자 전체를 이중 for문으로 순회
-    + K의 값은 손해가 나지 않는다면 계속 + 1 / 아니면 break
-    + 
+    + 마름모 모양에 속하는 격자 내의 금의 개수를 cnt에 더하기
+    + 마름모 중심마다 계산되는 값들의 최댓값을 max_cnt 값에 저장
+    + K의 값은 손해가 나지 않는다면 result에 값을 담고, K + 1 / 아니면 break
 + 틀린 이유
     + if문에 의해 result 값이 설정되는 과정이 생략되는 반례가 존재했음
 + 수정
@@ -177,7 +178,7 @@ print(result)
     + 변수 새로 설정 시 반례에 의한 기본값 설정의 필요성 확인하기
 
 <details>
-<summary>코드 토글</summary>
+<summary>Code</summary>
 <div markdown="1">
 
 ```Python3
@@ -223,7 +224,7 @@ print(result)
 
 ## (9) 격자 안에서 여러 객제를 이동
 <details>
-<summary>코드 토글</summary>
+<summary>Code</summary>
 <div markdown="1">
 
 ```Python3
