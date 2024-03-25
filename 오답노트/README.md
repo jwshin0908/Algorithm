@@ -98,7 +98,7 @@ print(cnt)
 + 문제 상황
     + 행복한 수열 = 연속하여 m개 이상의 동일한 원소가 나오는 순간이 존재하는 수열
     + n * n 크기의 격자 정보가 주어졌을 때 각 행마다 봤을 때 나오는 n개의 수열과, 각 열마다 봤을 때 나올 수 있는 n개의 수열을 포함하여 총 2n개의 수열 중 행복한 수열의 개수를 세서 출력하는 프로그램
-    + 1 ≤ m ≤ n ≤ 100
+    + ```1 ≤ m ≤ n ≤ 100```
 + 알고리즘 설계
     + 동일한 원소 개수 cnt = 1로 지정 / array 첫 번째 원소 = num으로 지정 후 다음 원소와 비교해가며 cnt & num 값 update
     + 원소 값이 동일하면 cnt를 더하고, 다르면 1로 초기화 / array 끝까지 도달했을 때 cnt가 m 이상일 경우 1을 반환
@@ -155,6 +155,65 @@ print(result)
 </div>
 </details>
 
+---
+
+**오답 문제 2 : 금 채굴하기**
++ 문제 상황
+    + n × n 크기의 이차원 영역에 파묻힌 금 한 개의 가격이 m일 때, 손해를 보지 않으면서 채굴할 수 있는 가장 많은 금의 개수를 출력
+    + 채굴은 반드시 마름모 모양으로 단 한 번 가능
+        + 마름모 모양 : 특정 중심점을 기준으로 K번 이내로 상하좌우의 인접한 곳으로 이동하는 걸 반복했을 때 갈 수 있는 모든 영역
+    + 채굴에 드는 비용 = 마름모 안의 격자 개수 = ```K ∗ K + (K + 1) ∗ (K + 1)```로 계산
+    + ```1 ≤ n ≤ 20 / 1 ≤ m ≤ 10```
++ 알고리즘 설계
+    + 무한 loop 내에서 마름모의 중심을 n x n 격자 전체를 이중 for문으로 순회
+    + K의 값은 손해가 나지 않는다면 계속 + 1 / 아니면 break
+    + 
++ 틀린 이유
+    + if문에 의해 result 값이 설정되는 과정이 생략되는 반례가 존재했음
++ 수정
+    + ```result = 0```을 통해 기본 result 값을 설정한 후 진행
++ 느낀 점
+    + 방법론 생각하는 과정에서 시간 복잡도 계산하기
+    + 변수 새로 설정 시 반례에 의한 기본값 설정의 필요성 확인하기
+
+<details>
+<summary>코드 토글</summary>
+<div markdown="1">
+
+```Python3
+n, m = map(int, input().split())
+array = []
+for _ in range(n):
+    array.append(list(map(int, input().split())))
+
+def func1(x1, y1, x2, y2):
+    return (abs(x1 - x2) + abs(y1 - y2)) <= k
+
+k = 0
+max_cnt = 0
+result = 0
+while True:
+    for i in range(n):
+        for j in range(n):
+            cnt = 0
+            for x in range(n):
+                for y in range(n):
+                    if func1(i, j, x, y):
+                        cnt += array[x][y]
+            max_cnt = max(cnt, max_cnt)
+    cost = k ** 2  + (k + 1) ** 2
+    if m * max_cnt >= cost:
+        result = max_cnt
+        k += 1
+    else:
+        break
+
+print(result)
+```
+</div>
+</details>
+
+---
 
 ## (6) 격자 안에서 밀고 당기기
 
