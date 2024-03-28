@@ -619,28 +619,121 @@ for row in range(1, n + 1):
 
 ---
 
-**오답 문제 2 : 2차원 바람**
+**오답 문제 2 : 최단 Run Length 인코딩**
 + 문제 상황
-    + 
+    + 길이가 n인 문자열 A가 주어졌을 때, 적절하게 특정 횟수만큼 오른쪽으로 shift하여, shift 된 이후의 문자열에 Run-Length Encoding을 진행했을 때의 최소 길이를 구하기
+    + Run-Length Encoding : 연속해서 나온 문자와 연속해서 나온 개수로 나타내는 방식
+    	+ aaabbbbcaa $\rightarrow$  a3b4c1a2
+    + ```1 ≤ 문자열 A의 길이 ≤ 10```
 + 알고리즘 설계
-    + 
+    + 반복문을 통해 최소 1부터 최대 문자열의 길이만큼 오른쪽 shift하며 Encoding 결과 길이 계산
+    + 함수화를 통해 Encoding 하는 과정 설정 : 기준값(std)과 개수(cnt) 활용해서 문자열을 순회하며 동작
 + 틀린 이유
-    + 
+    + 문자열의 길이가 1인 경우를 고려하지 않음
 + 수정
-    + 
+    + 함수에 문자열의 길이가 1인 경우를 if문을 통해 따로 구별
 + 느낀 점
-    + 
+    + 함수 설정에 있어 모든 경우의 수를 포함하는지 확인하기
+    + 함수를 단순화할 수 있는 방법 생각하기
 
 <details>
 <summary>풀이 CODE</summary>
 <div markdown="1">
 
 ```Python3
+A = list(input())
+n = len(A)
+result = []
 
+def func(array):
+    std = array[0]
+    cnt = 1
+    word_label = ''
+    if len(array) == 1:
+        word = str(std) + str(cnt)
+        word_label = word_label + word
+    for i in range(len(array) - 1):
+        if array[i + 1] == std:
+            cnt += 1
+            if (i + 1) == len(array) - 1:
+                word = str(std) + str(cnt)
+                word_label = word_label + word
+        else:
+            word = str(std) + str(cnt)
+            word_label = word_label + word
+            std = array[i + 1]
+            cnt = 1
+            if (i + 1) == len(array) - 1:
+                word = str(std) + str(cnt)
+                word_label = word_label + word
+    return word_label
+
+for i in range(1, n + 1):
+    array = A[:]
+    for _ in range(i):
+        array.insert(0, array.pop())
+    result.append(len(func(array)))
+
+print(min(result))
 ```
 </div>
 </details>
 
+<details>
+<summary>해설 CODE</summary>
+<div markdown="1">
+
+```Python3
+# 변수 선언 및 입력:
+A = input()
+
+
+def run_length_encoding(target):
+    # 이 함수는 input 문자열을 Run-Length-Encoding한 결과를 반환합니다.
+    encoded = ""
+
+    # 입력의 첫번째 값을 읽고 초기화합니다.
+    curr_char = target[0]
+    num_char = 1
+    for target_char in target[1:]:
+        if target_char == curr_char:
+            num_char += 1
+        else:
+            # 지금까지 세어온 curr_char와 num_char를 기록합니다.
+            encoded += curr_char
+            encoded += str(num_char)
+    
+            # curr_char와 num_char를 현재 값으로 초기화합니다.
+            curr_char = target_char
+            num_char = 1
+        
+    # 마지막 덩어리에 해당하는 curr_char와 num_char를 기록합니다.
+    encoded += curr_char
+    encoded += str(num_char)
+    return encoded
+
+
+min_length = len(run_length_encoding(A)) # 초기값은 shift안했을 때의 값
+n = len(A)
+num_shift = n - 1 # 0부터 length - 1
+
+while num_shift:
+    # 문자열 A를 오른쪽으로 1번 shift합니다.
+    A = A[-1] + A[:-1]
+    
+    length = len(run_length_encoding(A))
+    if min_length > length:
+        min_length = length
+    
+    num_shift -= 1
+    
+# 출력
+print(min_length)
+```
+</div>
+</details>
+
+---
 
 ## (7) 격자 안에서 터지고 떨어지는 경우
 
