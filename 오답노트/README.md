@@ -401,25 +401,23 @@ print(ans)
     + temp 값을 미는 작업을 진행한 이후에 다시 첫 번째 원소에 넣어주기
 + 밀어주는 방향
     + 오른쪽으로 밀어주기 위해서는 가장 끝 칸부터 앞으로 오며 순서대로 채워주기
-	    ```Python3
-	    temp = a[n-1]
-	    for i in range(n - 1, 0, -1):
-	        a[i] = a[i - 1]
-	    a[0] = temp
-	    ```
-	    ```Python3
-	    a.insert(0, a.pop())
-	    ```
+	```Python3
+	temp = a[n-1]
+	for i in range(n - 1, 0, -1):
+	a[i] = a[i - 1]
+	a[0] = temp
+	```
+	```Python3
+	a.insert(0, a.pop()) # 오른쪽으로 밀기
+	a.insert(len(a) - 1, a.pop(0)) # 왼쪽으로 밀기
+	```
     + 위쪽으로 당기기 위해서는 위에서 아래로 내려오며 한 칸씩 당겨준 뒤, 다시 마지막 행에 temp 값을 넣어주기
-	    ```Python3
-	    temp = a[0][col]
-	    for row in range(n - 1):
-	        a[row][col] = a[row + 1][col]
-	    a[n - 1][col] = temp
-	    ```
-	    ```Python3
-	    a.insert(len(a) - 1, a.pop(0))
-	    ```
+	```Python3
+	temp = a[0][col]
+	for row in range(n - 1):
+	a[row][col] = a[row + 1][col]
+	a[n - 1][col] = temp
+	```
 ---
 
 **오답 문제 1 : 행복한 수열의 개수**
