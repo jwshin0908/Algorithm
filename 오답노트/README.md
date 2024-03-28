@@ -1,4 +1,4 @@
-# 💻코딩테스트 준비용 오답노트
+# 💻삼성전자 코딩테스트 관련 개념 정리
 ## 목차
 [1. 시뮬레이션](#1-시뮬레이션)<br/>
 &emsp;[(1) dx dy technique](#1-dx-dy-technique)<br/>
@@ -27,7 +27,7 @@
 ## (1) dx dy technique
 
 <details>
-<summary>Code</summary>
+<summary>풀이 CODE</summary>
 <div markdown="1">
 
 ```Python3
@@ -114,7 +114,7 @@ print(cnt)
 + 느낀 점
     + 테스트케이스 이외의 다양한 반례 상황 찾아보기
 <details>
-<summary>Code</summary>
+<summary>풀이 CODE</summary>
 <div markdown="1">
 
 ```Python3
@@ -182,7 +182,7 @@ print(result)
     + 변수 새로 설정 시 반례에 의한 기본값 설정의 필요성 확인하기
 
 <details>
-<summary>Code</summary>
+<summary>풀이 CODE</summary>
 <div markdown="1">
 
 ```Python3
@@ -240,7 +240,7 @@ print(result)
     + 함수화를 통한 코드 단순화의 필요
 
 <details>
-<summary>Code</summary>
+<summary>풀이 CODE</summary>
 <div markdown="1">
 
 ```Python3
@@ -286,7 +286,7 @@ print(max(result))
 </details>
 
 <details>
-<summary>해설 Code</summary>
+<summary>해설 CODE</summary>
 <div markdown="1">
 
 ```Python3
@@ -420,7 +420,206 @@ print(ans)
 	```
 ---
 
-**오답 문제 1 : 행복한 수열의 개수**
+**오답 문제 1 : 2차원 바람**
++ 문제 상황
+    + N * M 행렬 모양의 건물에 총 Q번의 바람이 붐
+    + 특정 직사각형 영역의 경계에 있는 숫자들을 시계 방향으로 한 칸씩 shift 하고 해당 직사각형 내 영역에 있는 값들을 각각 자신의 위치를 기준으로 자신과 인접한 원소들과의 평균 값으로 바꿈
+    + ```1 ≤ r1 < r2 ≤ N / 1 ≤ c1 < c2 ≤ M / 2 ≤ N ≤ 100 / 2 ≤ M ≤ 100 / 0 ≤ Q ≤ 100```
++ 알고리즘 설계
+    + 직사각형 경계 row, column에 대하여 마지막에서 두 번째 값을 temp로 하나씩 저장 후 시계방향으로 하나씩 shift 진행
+    + 인접 원소들의 평균값을 도출하는 함수 설정해 직사각형 영역을 순회하며 실행 후 new_array에 값을 저장
++ 틀린 이유
+    + array 복사를 잘못하여 두 개가 동시에 값이 변경되는 문제가 발생
++ 수정
+    + 아래와 같은 형식으로 deepcopy를 활용하여 2차원 배열 복사
+      ```Python3
+      from copy import deepcopy
+      array = deepcopy(new_array)
+      ```
++ 느낀 점
+    + 해설처럼 하나만 temp를 설정한 후 순서대로 shift 한다면, temp를 여러 개 지정할 필요가 없음
+    + 2차원 배열 array를 복사하는 데에 있어 deepcopy 방법을 암기할 것 
+
+<details>
+<summary>풀이 CODE</summary>
+<div markdown="1">
+
+```Python3
+from copy import deepcopy
+N, M, Q = map(int, input().split())
+array = []
+for _ in range(N):
+    array.append(list(map(int, input().split())))
+
+def in_range(x, y):
+    return (0 <= x and x < N) and (0 <= y and y < M)
+
+def average_value(arr, x, y):
+    sum_temp, cnt = 0, 0
+    sum_temp += arr[x][y]
+    cnt += 1
+    if in_range(x - 1, y):
+        sum_temp += arr[x - 1][y]
+        cnt += 1
+    if in_range(x, y + 1):
+        sum_temp += arr[x][y + 1]
+        cnt += 1
+    if in_range(x + 1, y):
+        sum_temp += arr[x + 1][y]
+        cnt += 1
+    if in_range(x, y - 1):
+        sum_temp += arr[x][y - 1]
+        cnt += 1
+    return sum_temp // cnt
+
+for _ in range(Q):
+    r1, c1, r2, c2 = map(int, input().split())
+
+    temp1 = array[r1 - 1][c2 - 2]
+    temp2 = array[r2 - 2][c2 - 1]
+    temp3 = array[r2 - 1][c1]
+    temp4 = array[r1][c1 - 1]
+
+    for i in range(c2 - 2, c1 - 1, -1):
+        array[r1 - 1][i] = array[r1 - 1][i - 1]
+    array[r1 - 1][c1 - 1] = temp4
+
+    for i in range(r2 - 2, r1 - 1, -1):
+        array[i][c2 - 1] = array[i - 1][c2 - 1]
+    array[r1 - 1][c2 - 1] = temp1
+
+    for i in range(c1, c2 - 1):
+        array[r2 - 1][i] = array[r2 - 1][i + 1]
+    array[r2 - 1][c2 - 1] = temp2
+
+    for i in range(r1, r2 - 1):
+        array[i][c1 - 1] = array[i + 1][c1 - 1]
+    array[r2 - 1][c1 - 1] = temp3
+
+    new_array = deepcopy(array)
+    for x in range(r1 - 1, r2):
+        for y in range(c1 - 1, c2):
+            new_array[x][y] = average_value(array, x, y)
+    array = deepcopy(new_array)
+
+for i in array:
+    print(*i)
+```
+</div>
+</details>
+
+<details>
+<summary>해설 CODE</summary>
+<div markdown="1">
+
+```Python3
+# 변수 선언 및 입력
+n, m, q = tuple(map(int, input().split()))
+a = [
+    [0 for _ in range(m + 1)]
+    for _ in range(n + 1)
+]
+temp_arr = [
+    [0 for _ in range(m + 1)]
+    for _ in range(n + 1)
+]
+
+
+# 직사각형의 경계에 있는 숫자들을 시계 방향으로 한 칸씩 회전해줍니다.
+def rotate(start_row, start_col, end_row, end_col):
+    # Step1-1. 직사각형 가장 왼쪽 위 모서리 값을 temp에 저장합니다.
+    temp = a[start_row][start_col]
+    
+    # Step1-2. 직사각형 가장 왼쪽 열을 위로 한 칸씩 shift 합니다.
+    for row in range(start_row, end_row):
+        a[row][start_col] = a[row + 1][start_col]
+    
+    # Step1-3. 직사각형 가장 아래 행을 왼쪽으로 한 칸씩 shift 합니다.
+    for col in range(start_col, end_col):
+        a[end_row][col] = a[end_row][col + 1]
+    
+    # Step1-4. 직사각형 가장 오른쪽 열을 아래로 한 칸씩 shift 합니다.
+    for row in range(end_row, start_row, -1):
+        a[row][end_col] = a[row - 1][end_col]
+    
+    # Step1-5. 직사각형 가장 위 행을 오른쪽으로 한 칸씩 shift 합니다.
+    for col in range(end_col, start_col, -1):
+        a[start_row][col] = a[start_row][col - 1]
+    
+    # Step1-6. temp를 가장 왼쪽 위 모서리를 기준으로 바로 오른쪽 칸에 넣습니다.
+    a[start_row][start_col + 1] = temp
+
+
+# 격자를 벗어나는지 판단합니다.
+def in_range(x, y):
+    return 1 <= x and x <= n and 1 <= y and y <= m
+
+
+# x행 y열 (x, y)과 인접한 숫자들과의 평균 값을 계산해줍니다.
+# 격자를 벗어나지 않는 숫자들만을 고려해줍니다.
+def average(x, y):
+    # 자기 자신의 위치를 포함하여 평균을 내야 하므로
+    # dx, dy 방향을 5개로 설정하면 한 번에 처리가 가능합니다.
+    dxs, dys = [0, 1, -1, 0, 0], [0, 0, 0, 1, -1]
+    
+    active_numbers = [
+        a[x + dx][y + dy]
+        for dx, dy in zip(dxs, dys)
+        if in_range(x + dx, y + dy)
+    ]
+    
+    return sum(active_numbers) // len(active_numbers)
+
+
+# 직사각형 내 숫자들을 인접한 숫자들과의 평균값으로 바꿔줍니다.
+# 동시에 일어나야 하는 작업이므로, 이미 바뀐 숫자에 주위 숫자들이 영향을 받으면 안되기 때문에
+# temp_arr 배열에 평균 값들을 전부 적어 준 다음, 그 값을 다시 복사해 옵니다.
+def set_average(start_row, start_col, end_row, end_col):
+    # Step2-1. temp_arr에 평균 값을 적습니다.
+    for row in range(start_row, end_row + 1):
+        for col in range(start_col, end_col + 1):
+            temp_arr[row][col] = average(row, col)
+    
+    # Step2-2. temp_arr 값을 다시 가져옵니다.
+    for row in range(start_row, end_row + 1):
+        for col in range(start_col, end_col + 1):
+            a[row][col] = temp_arr[row][col]
+
+
+# 조건에 맞춰 값을 바꿔봅니다.
+def simulate(start_row, start_col, end_row, end_col):
+    # Step1
+    # 직사각형 경계에 있는 숫자들을 시계 방향으로 한 칸씩 회전해줍니다.
+    rotate(start_row, start_col, end_row, end_col)
+    
+    # Step2
+    # 직사각형 내 각각의 숫자들을 인접한 숫자들과의 평균값으로 바꿔줍니다.
+    set_average(start_row, start_col, end_row, end_col)
+
+
+for row in range(1, n + 1):
+    given_nums = list(map(int, input().split()))
+    for col, num in enumerate(given_nums, start = 1):
+        a[row][col] = num
+
+for _ in range(q):
+    r1, c1, r2, c2 = tuple(map(int, input().split()))
+    
+    # 조건에 맞춰 값을 바꿔봅니다.
+    simulate(r1, c1, r2, c2)
+
+# 출력
+for row in range(1, n + 1):
+    for col in range(1, m + 1):
+        print(a[row][col], end = " ")
+    print()
+```
+</div>
+</details>
+
+---
+
+**오답 문제 2 : 2차원 바람**
 + 문제 상황
     + 
 + 알고리즘 설계
@@ -433,7 +632,7 @@ print(ans)
     + 
 
 <details>
-<summary>Code</summary>
+<summary>풀이 CODE</summary>
 <div markdown="1">
 
 ```Python3
@@ -442,13 +641,13 @@ print(ans)
 </div>
 </details>
 
----
 
 ## (7) 격자 안에서 터지고 떨어지는 경우
 
 ## (8) 격자 안에서 단일 객체를 이동
 
 ## (9) 격자 안에서 여러 객제를 이동
+**오답 문제 1 : 000**
 + 문제 상황
     + 
 + 알고리즘 설계
@@ -461,7 +660,7 @@ print(ans)
     + 
 
 <details>
-<summary>Code</summary>
+<summary>풀이 CODE</summary>
 <div markdown="1">
 
 ```Python3
