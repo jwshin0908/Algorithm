@@ -736,6 +736,85 @@ print(min_length)
 ---
 
 ## (7) 격자 안에서 터지고 떨어지는 경우
+**격자 안에서 터지고 떨어지는 작업**
++ 특정 규칙에 의해 폭탄이 터지게 되고, 그 이후에 중력이 작용하여 위에 떠있는 폭탄들이 아래로 떨어지는 작업
++ 새로운 temp 배열을 이용하는 방법 : 시간복잡도 O(n)
++ 2차원 격자에서 폭탄들이 떨어질 때 : 폭탄들이 떨어지는 과정은 각 열에 대해 독립적으로 진행
+    1. temp 배열을 새로 만들어줌
+    2. 아래에서 위로 올라오면서, 비어있지 않을 때만 temp에 넣어줌
+		+ temp의 해당 col열의 가장 밑에서부터 폭탄을 채워줌
+  		+ 단, arr의 col열의 가장 밑에서부터 올라오며 폭탄이 있는 경우에만 temp에 옮겨줌
+  		+ row값을 n - 1에서부터 0으로 감소시키며 하나씩 조사하며, temp를 위한 temp_row값을 정의하여 n - 1에서부터 순서대로 1씩 감소하며 채움
+    3. temp값을 기존 배열에 다시 옮겨줌
+	```Python3
+	BLANK = 0
+	n = 6
+	arr = [[0] * n for _ in range(n)]
+	temp = [[0] * n for _ in range(n)]
+	
+	for row in range(n - 1, -1, -1):
+	    temp[row][col] = BLANK
+	
+	temp_row = n - 1
+	
+	for row in range(n - 1, -1, -1):
+	    if arr[row][col] != BLANK:
+	        temp[temp_row][col] = arr[row][col]
+	        temp_row -= 1
+	
+	for row in range(n):
+	    arr[row][col] = temp[row][col]
+	```
++ 1차원 격자에서 폭탄들이 떨어질 때 : 1차원 배열 내에서 특정 구간의 원소가 삭제된 것과 같이, 뒤에 남은 원소들을 앞으로 당겨주는 시뮬레이션을 진행
+    1. temp라는 이름의 1차원 배열을 새로 만들어줌 / end_of_temp_array라는 변수도 선언해주며 초기값으로 0을 넣어줍
+    2. 왼쪽에서 오른쪽으로 가면서, 비어있지 않을 때만 temp에 넣어줌
+		+ temp의 왼쪽에서부터 폭탄을 채워줌
+  		+ 단, arr의 해당 index에 폭탄이 있는 경우에만 temp에 옮겨줌
+  		+ index값을 0에서 end_of_array까지 1씩 증가시키며 하나씩 조사하며, temp를 위한 end_of_temp_array값을 0에서부터 순서대로 1씩 증가시키며 채움
+    3. temp 값을 기존 배열에 다시 옮겨줌
+	```Python3
+	BLANK = 0
+	end_of_array = 6
+	arr = [0] * 6
+	temp = [0] * 6
+	
+	end_of_temp_array = 0
+	
+	for i in range(end_of_array):
+	    if arr[i] != BLANK:
+	        temp[end_of_temp_array] = arr[i]
+	        end_of_temp_array += 1
+	
+	for i in range(end_of_temp_array):
+	    arr[i] = temp[i]
+	
+	end_of_array = end_of_temp_array
+	```
+---
+
+**오답 문제 1 : 000**
++ 문제 상황
+    + 
++ 알고리즘 설계
+    + 
++ 틀린 이유
+    + 
++ 수정
+    + 
++ 느낀 점
+    + 
+
+<details>
+<summary>풀이 CODE</summary>
+<div markdown="1">
+
+```Python3
+
+```
+</div>
+</details>
+
+---
 
 ## (8) 격자 안에서 단일 객체를 이동
 
