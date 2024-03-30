@@ -798,24 +798,220 @@ print(min_length)
 	```
 ---
 
-**오답 문제 1 : 000**
+**오답 문제 1 : 2차원 폭발 게임**
 + 문제 상황
-    + 
+    + 1이상 100이하의 숫자가 적혀있는 폭탄이 N × N 크기의 상자에 들어있음
+    + 각각의 열에 대하여 행 기준으로 봤을 때 연속으로 M개 이상의 같은 숫자가 적혀있는 폭탄들은 터지게 되고, 중력에 의해 위에 있던 폭탄들은 밑으로 떨어짐
+    	+ M개 이상인 폭탄들의 쌍이 여러 개라면 동시에 터짐
+    	+ 터져야 할 폭탄이 없을 때까지 조건에 맞는 폭탄들을 터뜨리는 것을 반복
+    + 터지는 과정을 한번 반복한 이후에는 상자를 시계방향으로 90° 회전
+    	+ 회전 이후 중력에 의해 밑에 여유 공간이 있을 경우 밑으로 떨어짐
+    + 폭탄들이 움직이지 않게 되면 다시 각각의 열마다 행을 기준으로 연속으로 M개 이상의 같은 숫자가 적혀있는 폭탄들은 터지게 되고 다시 중력에 의해 밑으로 떨어짐
+    + 이와 같이 터지고 회전하는 과정을 총 K번 반복한다고 했을 때, 최종적으로 상자에 남아있는 폭탄의 수를 출력하는 프로그램을 작성
+    + 만약 K번째 회전을 진행한 이후에도 터질 폭탄이 상자에 남아있다면, 조건에 맞는 폭탄들을 전부 터뜨리는 것을 반복한 이후에 최종적으로 상자에 남아 있는 폭탄의 수를 구하기
+    + ```1 ≤ N ≤ 100 / 1 ≤ M ≤ 100 / 1 ≤ K ≤ 1,000```
 + 알고리즘 설계
-    + 
+    + explosion_end_idx 함수를 통해 특정 연속 값의 마지막 index 반환
+    + bomb 함수를 통해 연속 M개 이상의 같은 숫자가 있을 경우 폭탄들이 터지고, 중력으로 떨어지는 과정을 가능할 때까지 무한 반복
+    + rotate 함수를 통해 90도 회전하고 중력에 의해 떨어지게 설정
 + 틀린 이유
-    + 
+    + rotate 함수 내에서 90도 회전만 하고, 중력에 의해 떨어지는 것을 고려하지 못함
 + 수정
-    + 
+    + rotate 함수 내에 중력 영향 구현
 + 느낀 점
-    + 
+    + 연속 값의 개수를 세는 방법론 기억해두기
+    + 문제 조건 꼼꼼히 확인하기
 
 <details>
 <summary>풀이 CODE</summary>
 <div markdown="1">
 
 ```Python3
+blank = 0
+N, M, K = map(int, input().split())
+array = []
+for _ in range(N):
+    array.append(list(map(int, input().split())))
 
+def explosion_end_idx(array, start_idx, value):
+    for end_idx in range(start_idx + 1, N):
+        if array[end_idx] != value:
+            return end_idx - 1
+    return N - 1
+
+def bomb(array):
+    while True:
+        flag = False
+        for col in range(N):
+            temp = []
+            for row in range(N):
+                temp.append(array[row][col])
+            for idx, value in enumerate(temp):
+                if value == blank:
+                    continue
+                end_idx = explosion_end_idx(temp, idx, value)
+                if end_idx - idx + 1 >= M:
+                    temp[idx : end_idx + 1] = [0] * (end_idx - idx + 1)
+                    flag = True
+            temp = list(filter(lambda x : x > 0, temp))
+            temp = [0] * (N - len(temp)) + temp
+            for row in range(N):
+                array[row][col] = temp[row]
+        if not flag:
+            break
+    return array
+
+def rotate(array):
+    temp = [[0] * N for _ in range(N)]
+    for row in range(N):
+        for col in range(N):
+            temp[col][N - 1 - row] = array[row][col]
+    for col in range(N):
+        gravity_temp = []
+        for row in range(N):
+            gravity_temp.append(temp[row][col])
+        gravity_temp = list(filter(lambda x : x > 0, gravity_temp))
+        gravity_temp = [0] * (N - len(gravity_temp)) + gravity_temp
+        for row in range(N):
+            temp[row][col] = gravity_temp[row]
+    return temp
+
+for _ in range(K):
+    array = bomb(array)
+    array = rotate(array)
+
+array = bomb(array)
+
+cnt = 0
+for i in range(N):
+    for j in range(N):
+        if array[i][j] > 0:
+            cnt += 1
+print(cnt)
+```
+</div>
+</details>
+
+<details>
+<summary>해설 CODE</summary>
+<div markdown="1">
+
+```Python3
+BLANK = -1
+WILL_EXPLODE = 0
+
+# 변수 선언 및 입력
+n, m, k = tuple(map(int, input().split()))
+numbers_2d = [
+    list(map(int, input().split()))
+    for _ in range(n)
+]
+numbers_1d = [
+    0 for _ in range(n)
+]
+
+
+# 주어진 시작점에 대하여
+# 부분 수열의 끝 위치를 반환합니다.
+def get_end_idx_of_explosion(start_idx, curr_num):
+    for end_idx in range(start_idx + 1, len(numbers_1d)):
+        if numbers_1d[end_idx] != curr_num:
+            return end_idx - 1
+        
+    return len(numbers_1d) - 1
+
+
+def explode():
+    while True:
+        did_explode = False
+        curr_idx = 0
+    
+        while curr_idx < len(numbers_1d):
+            end_idx = get_end_idx_of_explosion(curr_idx, numbers_1d[curr_idx])
+        
+            if end_idx - curr_idx + 1 >= m:
+                # 연속한 숫자의 개수가 m개 이상이면
+                # 폭탄이 터질 수 있는 경우 해당 부분 수열을 잘라내고
+                # 폭탄이 터졌음을 기록해줍니다.
+                del numbers_1d[curr_idx:end_idx + 1]
+                did_explode = True
+            else:
+                # 주어진 시작 원소에 대하여 폭탄이 터질 수 없는 경우
+                # 다음 원소에 대하여 탐색하여 줍니다.
+                curr_idx = end_idx + 1
+
+        if not did_explode:
+            break
+
+
+##################################################################################
+##			이 줄을 기준으로 위에 있는 함수들에 대한 설명은 1차원 폭발 게임을 참조해주세요     	  ##
+##################################################################################
+
+        
+# 격자의 특정 열을 일차원 배열에 복사해줍니다.
+def copy_column(col):
+    global numbers_1d
+    
+    numbers_1d = [
+        numbers_2d[row][col]
+        for row in range(n)
+        if numbers_2d[row][col] != BLANK
+    ]
+
+
+# 폭탄이 터진 결과를 격자의 해당 열에 복사해줍니다.
+def copy_result(col):
+    for row in range(n - 1, -1, -1):
+        numbers_2d[row][col] = numbers_1d.pop() if numbers_1d \
+                                                else BLANK
+
+
+# 폭탄이 터지는 과정을 시뮬레이션 합니다.
+def simulate():
+    for col in range(n):
+        copy_column(col)
+        explode()
+        copy_result(col)
+
+        
+# 시계 방향으로 90도 회전해줍니다.
+def rotate():
+    global numbers_2d
+    
+    # 빈 칸으로 초기화 된 임시 격자를 선언합니다.
+    temp_2d = [
+        [BLANK for _ in range(n)]
+        for _ in range(n)
+    ]
+    
+    # 기존 격자를 시계 방향으로 90도 회전했을 때의 결과를
+    # 임시 격자에 저장해줍니다.
+    for i in range(n - 1, -1, -1):
+        curr_idx = n - 1
+        for j in range(n - 1, -1, -1):
+            if numbers_2d[i][j] != BLANK:
+                temp_2d[curr_idx][n - i - 1] = numbers_2d[i][j]
+                curr_idx -= 1
+    
+    # 임시 격자에 저장된 값을 기존 격자에 복사합니다.
+    numbers_2d = temp_2d
+
+        
+# 주어진 입력에 따라 폭탄이 터지는 것을 시뮬레이션 합니다.
+simulate()
+for _ in range(k):
+    rotate()
+    simulate()
+
+        
+# 격자를 순회하며 남아 있는 폭탄의 개수를 세줍니다.
+answer = sum([
+    numbers_2d[i][j] != BLANK
+    for i in range(n)
+    for j in range(n)
+])
+print(answer)
 ```
 </div>
 </details>
