@@ -765,6 +765,12 @@ print(min_length)
 	for row in range(n):
 	    arr[row][col] = temp[row][col]
 	```
+	```Python3
+	# filter를 사용하는 방법도 존재
+	temp = list(filter(lambda x: x > 0, array[row]))
+	array[row] = temp + [0] * (n - len(temp))
+	```
+ 
 + 1차원 격자에서 폭탄들이 떨어질 때 : 1차원 배열 내에서 특정 구간의 원소가 삭제된 것과 같이, 뒤에 남은 원소들을 앞으로 당겨주는 시뮬레이션을 진행
     1. temp라는 이름의 1차원 배열을 새로 만들어줌 / end_of_temp_array라는 변수도 선언해주며 초기값으로 0을 넣어줍
     2. 왼쪽에서 오른쪽으로 가면서, 비어있지 않을 때만 temp에 넣어줌
