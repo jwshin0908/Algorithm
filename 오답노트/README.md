@@ -1035,6 +1035,139 @@ def simulate():
     curr_x, curr_x = max_pos
 ```
 
+---
+
+**오답 문제 1 : 숫자가 더 큰 인접한 곳으로 이동**
++ 문제 상황
+    + 1이상 100이하의 숫자로 이루어진 n * n 크기의 격자판 정보가 주어짐
+    + 특정 위치에서 시작하여, 상하좌우로 인접한 곳에 있는 숫자들 중 현재 위치에 있는 숫자보다 더 큰 위치로 끊임없이 이동
+    + 그러한 위치가 여러개 있는 경우, 상하좌우 방향 순서대로 우선순위를 매겨 가능한 곳 중 우선순위가 더 높은 곳으로 이동
+    + 격자를 벗어나서는 안되며, 더 이상 움직일 수 없을 때까지 반복
+    + ```1 ≤ r, c ≤ n / 1 ≤ n ≤ 100```
++ 알고리즘 설계
+    + 입력받은 위치를 global 변수 x, y에 할당하고 simulate() 함수를 통해 이동한 위치가 기존 최댓값보다 클 경우 max_pos, max_value를 update
+    + while True를 통해 max_value를 result라는 list에 계속 담게 설정하며 만약 새로 담을 값이 result[-1] 값과 동일할 경우 break
++ 틀린 이유
+    + global 변수를 설정하는데에 어려움이 있었고, 반복문을 탈출하지 못함
++ 수정
+    + max_pos, max_value에 대해서도 global 변수 설정
+    + 결과값을 담은 list와 비교해 무한 반복문 탈출
++ 느낀 점
+    + simulate() 함수 자체에서 True, False 값을 return 하는 방법이 더 효율적. 결과값을 통해 무한반복문에서 탈출하기 용이함
+    + global 변수 설정의 필요성에 대해 알아두기
+    + 입력이 없는 함수에 대해 익숙해지기
+
+<details>
+<summary>풀이 CODE</summary>
+<div markdown="1">
+
+```Python3
+n, r, c = map(int, input().split())
+array = []
+for _ in range(n):
+    array.append(list(map(int, input().split())))
+
+def in_range(x, y):
+    return (0 <= x and x < n) and (0 <= y and y < n)
+
+result = []
+x, y = r - 1, c - 1
+max_pos = (r - 1, c - 1)
+max_value = array[r - 1][c - 1]
+
+def simulate():
+    global x, y, max_pos, max_value 
+    dx = [-1, 1, 0, 0]
+    dy = [0, 0, -1, 1]
+    for i in range(4):
+        nx = x + dx[i]
+        ny = y + dy[i]
+        if in_range(nx, ny) and array[nx][ny] > max_value:
+            max_pos = (nx, ny)
+            max_value = array[nx][ny]
+            break
+    x, y = max_pos
+    return max_value
+
+while True:
+    result.append(max_value)   
+    if simulate() == result[-1]:
+        print(*result)
+        break
+```
+</div>
+</details>
+
+<details>
+<summary>해설 CODE</summary>
+<div markdown="1">
+
+```Python3
+# 변수 선언 및 입력
+n, curr_x, curr_y = tuple(map(int, input().split()))
+a = [[0] * (n + 1)]
+for _ in range(n):
+    a.append([0] + list(map(int, input().split())))
+
+# 방문하게 되는 숫자들을 담을 곳입니다.
+visited_nums = []
+
+
+# 범위가 격자 안에 들어가는지 확인합니다.
+def in_range(x, y):
+    return 1 <= x and x <= n and 1 <= y and y <= n
+
+
+# 범위가 격자 안이고, 해당 위치의 값이 더 큰지 확인합니다.
+def can_go(x, y, curr_num):
+    return in_range(x, y) and a[x][y] > curr_num
+
+
+# 조건에 맞춰 움직여봅니다.
+# 움직였다면 true를 반환하고
+# 만약 움직일 수 있는 곳이 없었다면 false를 반환합니다.
+def simulate():
+    global curr_x, curr_y
+    
+    # 코딩의 간결함을 위해 
+    # 문제 조건에 맞게 상하좌우 순서로
+    # 방향을 정의합니다.
+    dxs, dys = [-1, 1, 0, 0], [0, 0, -1, 1]
+    
+    # 각각의 방향에 대해 나아갈 수 있는 곳이 있는지 확인합니다.
+    for dx, dy in zip(dxs, dys):
+        next_x, next_y = curr_x + dx, curr_y + dy
+        
+        # 갈 수 있는 곳이라면
+        # 이동하고 true를 반환합니다.
+        if can_go(next_x, next_y, a[curr_x][curr_y]):
+            curr_x, curr_y = next_x, next_y
+            return True
+    
+    # 움직일 수 있는 곳이 없었다는 의미로
+    # false 값을 반환합니다.
+    return False
+
+
+# 초기 위치에 적혀있는 값을 답에 넣어줍니다.
+visited_nums.append(a[curr_x][curr_y])
+while True:
+    # 조건에 맞춰 움직여봅니다.
+    greater_number_exist = simulate()
+    
+    # 인접한 곳에 더 큰 숫자가 없다면 종료합니다.
+    if not greater_number_exist:
+        break
+    
+    # 움직이고 난 후의 위치를 답에 넣어줍니다.
+    visited_nums.append(a[curr_x][curr_y])
+
+# 출력:
+for num in visited_nums:
+    print(num, end=' ')
+```
+</div>
+</details>
 
 ---
 
