@@ -1019,6 +1019,24 @@ print(answer)
 ---
 
 ## (8) 격자 안에서 단일 객체를 이동
+**2차원 격자 안에서 단일 객체를 이동하는 시뮬레이션**
++ dx, dy 테크닉을 문제 정의에 맞게 이용하는 것이 중요
+```Python3
+def simulate():
+    global curr_x, curr_y
+    dxs, dys = [-1, 1, 0, 0], [0, 0, -1, 1]
+    max_num = 0
+    max_pos = (-1, -1)
+    for dx, dy in zip(dxs, dys):
+        next_x, next_y = curr_x + dx, curr_y + dy
+        if in_range(next_x, next_y) and a[next_x][next_y] > max_num:
+            max_num = a[next_x][next_y]
+            max_pos = (next_x, next_y)
+    curr_x, curr_x = max_pos
+```
+
+
+---
 
 ## (9) 격자 안에서 여러 객제를 이동
 **오답 문제 1 : 000**
