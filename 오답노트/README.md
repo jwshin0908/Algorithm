@@ -1368,6 +1368,228 @@ print(elapsed_time)
 
 ---
 
+**오답 문제 3 : 뱀은 사과를 좋아해**
++ 문제 상황
+    + N * N 크기의 격자 안에서 사과들의 위치와 뱀의 움직임이 주어졌을 때, 게임이 끝나는데 몇 초가 걸리는지를 구하기
+    + 뱀은 처음에 좌측 상단 (1, 1)에서 길이 1의 상태로 존재
+    + 뱀은 이동시에 머리를 특정 방향으로 한 칸 옮기게 되고, 가장 끝에 있던 꼬리가 사라지게 되며 이 과정은 동시에 일어남
+    + 만약 움직인 장소에 사과가 존재한다면 꼬리가 사라지지 않고 몸의 길이가 1 늘어나게 됩니다. 또, 사과는 먹는 즉시 사라짐
+    + 뱀이 움직이는 데에는 1초의 시간이 소요
+    + 게임은 뱀이 전부 움직였거나, 움직이는 도중 격자를 벗어났거나, 움직이는 도중 몸이 꼬여 서로 겹쳐졌을 경우 종료
+    + ```1 ≤ p ≤ 100 / 1 ≤ N ≤ 100 / 0 ≤ M < N * N / 0 ≤ K ≤ 1,000 / 0 ≤ 입력으로 주어지는 전체 p의 합 (S) ≤ 10,000```
++ 알고리즘 설계
+    + 뱀의 위치를 머리 - 꼬리 순으로 visited에 저장
+    + simulate() 함수를 설정
+    	+ 사과를 먹었을 때 ```length += 1```, 이동 시 ```time += 1``` 격자를 벗어날 경우 False를 return
+        + 뱀의 이동 후 위치를 담은 new_visited에 대해 새로운 머리 위치 + 기존 위치에서 (길이 - 머리 크기 1)만큼 몸통 가져오기
++ 틀린 이유
+    + 시간 초과 발생
++ 수정
+    + 불가
++ 느낀 점
+    + 자료형 사용에 있어 시간 복잡도 고려하기
+    + 해설 코드와 같은 함수화 작업하기
+
+<details>
+<summary>풀이 CODE</summary>
+<div markdown="1">
+
+```Python3
+n, m, k = map(int, input().split())
+array = []
+visited = [[0, 0]]
+dir_list = []
+dir_dict = {'R' : 0,
+            'D' : 1,
+            'L' : 2,
+            'U' : 3}
+
+dx = [0, 1, 0, -1]
+dy = [1, 0, -1, 0]
+
+for _ in range(m):
+    x, y = map(int, input().split())
+    array.append([x - 1, y - 1])
+
+for _ in range(k):
+    d, p = input().split()
+    p = int(p)
+    for _ in range(p):
+        dir_list.append(dir_dict[d])
+
+def in_range(x, y):
+    return (0 <= x and x < n) and (0 <= y and y < n)
+
+time = 0
+length = 1
+limit_time = len(dir_list)
+
+def simulate():
+    global array, visited, time, length
+    curr_x, curr_y = visited[0][0], visited[0][1]
+    if time == limit_time:
+        return False
+    dir_idx = dir_list[time]
+    next_x = curr_x + dx[dir_idx]
+    next_y = curr_y + dy[dir_idx]
+    time += 1
+    if not in_range(next_x, next_y):
+        return False    
+    # 새로운 head 위치에 사과 존재
+    if [next_x, next_y] in array:
+        length += 1
+        array.remove([next_x, next_y])
+    
+    new_visited = [[next_x, next_y]] + visited[:length - 1]
+    if [next_x, next_y] in visited[:length - 1]:
+        return False
+    visited = [v[:] for v in new_visited]
+    return True
+
+while True:
+    if not simulate():
+        print(time)
+        break
+```
+</div>
+</details>
+
+<details>
+<summary>해설 CODE</summary>
+<div markdown="1">
+
+```Python3
+# 변수 선언 및 입력
+n, m, K = tuple(map(int, input().split()))
+apple = [
+    [False for _ in range(n + 1)]
+    for _ in range(n + 1)
+]
+# 뱀은 처음에 (1, 1)에서 길이 1의 상태로 있습니다.
+snake = [(1, 1)]
+
+# 입력으로 주어진 방향을 정의한 dx, dy에 맞도록
+# 변환하는데 쓰이는 dict를 정의합니다.
+mapper = {
+    'D': 0,
+    'U': 1,
+    'R': 2,
+    'L': 3
+}
+
+ans = 0
+
+
+# (x, y)가 범위 안에 들어가는지 확인합니다.
+def can_go(x, y):
+    return 1 <= x and x <= n and 1 <= y and y <= n
+
+
+# 뱀이 꼬였는지 확인합니다.
+def is_twisted(new_head):
+    return new_head in snake
+
+
+# 새로운 머리를 추가합니다.
+def push_front(new_head):
+    # 몸이 꼬이는 경우
+    # false를 반환합니다.
+    if is_twisted(new_head):
+        return False
+    
+    # 새로운 머리를 추가합니다.
+    snake.insert(0, new_head)
+    
+    # 정상적으로 머리를 추가했다는 의미로
+    # True를 반환합니다.
+    return True
+
+
+# 꼬리를 지웁니다.
+def pop_back():
+    snake.pop()
+
+
+# (nx, ny)쪽으로 뱀을 움직입니다.
+def move_snake(nx, ny):
+    # 머리가 이동할 자리에 사과가 존재하면
+    # 사과는 사라지게 되고
+    if apple[nx][ny]:
+        apple[nx][ny] = False
+        # 꼬리는 사라지지 않고 머리만 늘어납니다.
+        # 늘어난 머리때문에 몸이 꼬이게 된다면
+        # False를 반환합니다.
+        if not push_front((nx, ny)):
+            return False
+    else:
+        # 사과가 없으면 꼬리는 사라지게 되고
+        pop_back()
+        
+        # 머리는 늘어나게 됩니다.
+        # 늘어난 머리때문에 몸이 꼬이게 된다면
+        # False를 반환합니다.
+        if not push_front((nx, ny)):
+            return False
+    
+    # 정상적으로 뱀이 움직였으므로
+    # True를 반환합니다.
+    return True
+
+
+# 뱀을 move_dir 방향으로 num번 움직입니다.
+def move(move_dir, num):
+    global ans
+    
+    dxs, dys = [1, -1, 0, 0], [0, 0, 1, -1]
+    
+    # num 횟수만큼 뱀을 움직입니다.
+    # 한 번 움직일때마다 답을 갱신합니다.
+    for _ in range(num):
+        ans += 1
+        
+        # 뱀의 머리가 그다음으로 움직일
+        # 위치를 구합니다.
+        (head_x, head_y) = snake[0]
+        nx = head_x + dxs[move_dir]
+        ny = head_y + dys[move_dir]
+        
+        # 그 다음 위치로 갈 수 없다면
+        # 게임을 종료합니다.
+        if not can_go(nx, ny):
+            return False
+        
+        # 뱀을 한 칸 움직입니다.
+        # 만약 몸이 꼬인다면 False를 반환합니다.
+        if not move_snake(nx, ny):
+            return False
+    
+    # 정상적으로 명령을 수행했다는 의미인 True를 반환합니다.
+    return True
+
+
+# 사과가 있는 위치를 표시합니다.
+for _ in range(m):
+    x, y = tuple(map(int, input().split()))
+    apple[x][y] = True
+
+# K개의 명령을 수행합니다.
+for _ in range(K):
+    # move_dir 방향으로 num 횟수 만큼 움직여야 합니다.
+    move_dir, num = tuple(input().split())
+    num = int(num)
+    
+    # 움직이는 도중 게임이 종료되었을 경우
+    # 더 이상 진행하지 않습니다.
+    if not move(mapper[move_dir], num):
+        break
+
+print(ans)
+```
+</div>
+</details>
+
+---
+
 ## (9) 격자 안에서 여러 객제를 이동
 **오답 문제 1 : 000**
 + 문제 상황
