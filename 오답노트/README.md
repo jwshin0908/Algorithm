@@ -1597,24 +1597,230 @@ print(ans)
 + 1차원 리스트를 만들어 각 객체의 위치를 관리하는 식으로 진행할 수도 있지만, 일반적으로는 2차원 격자 상에서 각 칸 단위로 객체를 관리하는 것이 더 좋음
 + 동시에 변화가 일어나야 하는 경우에는 새로운 배열을 만들어 주는 것이 항상 좋음
 
-**오답 문제 1 : 000**
+**오답 문제 1 : 벽이 있는 충돌 실험**
 + 문제 상황
-    + 
+    + M개의 구슬이 N*N 격자 안에 놓여져 있고, 격자는 벽으로 둘러싸여 있음
+    + 구슬이 벽에 부딪히면 움직이지 않고 움직이는 방향만 반대로 뒤집힘 : 방향을 바꾸는 작업에는 1초의 시간이 소요
+    + 두 개 이상의 구슬이 충돌하게 되면 부딪힌 구슬 모두 사라지게 됨
+    + 충돌은 두 구슬이 이동 후 같은 위치에 있는 경우에만 일어남
+    + 이동 중에 만나는 경우라면, 서로 충돌이 일어나지 않음
+    + 각 구슬의 초기상태가 주어졌을 때, 아주 오랜시간이 흐른 후에도 여전히 격자 안에 남아있는 구슬의 개수를 출력하는 프로그램을 작성
+    + ```1 ≤ T ≤ 100 / 1 ≤ N ≤ 50 / 0 ≤ M ≤ N * N```
 + 알고리즘 설계
-    + 
+    + 각 array는 구슬의 방향 dir_idx(0 ~ 3)을 담고 있으며 구슬이 없는 곳은 -1의 값을 가짐
+    + in_range 함수를 통해 격자 내에 위치하는지 확인
+    + move 함수를 통해 특정 구슬 움직이기
+    	+ 이동 후 구슬 위치 (nx, ny)가 격자 내에 있다면 next_array의 (nx, ny)에 해당 dir_idx을 담기. count의 (nx, ny)는 + 1, count의 (x, y)는 -1
+ 	+ 격자 내에 없다면 방향만 전환
+    + move_all 함수를 통해 모든 구슬 움직이기
+        + next_array의 모든 값 -1로 초기화
+        + array 값이 -1보다 크면, 즉 구슬이 있다면 move 함수 호출
+    + delete 함수를 통해 충돌 구슬들 제거
+      	+ count 값이 1보다 크면 충돌이므로, 0으로 변환하고 next_array의 해당 위치를 -1, 즉 구슬 없는 것으로 변환
+      	+ next_array의 값을 array 값에 대입
+    + simulate 함수를 통해 move_all 함수와 delete 함수 호출
+    + 왕복 이동에 걸리는 2 * N 시간 만큼 simulate 반복
 + 틀린 이유
-    + 
+    + 동시 변화 발생으로 count에 대한 next_count을 생성했지만, 서로 구슬이 교차될 때 문제가 발생함
 + 수정
-    + 
+    + array에 대한 next_array를 생성해 구슬이 교차될 때도 이후의 방향 값에 대한 정보를 저장할 수 있음
 + 느낀 점
-    + 
+    + 동시에 변화가 발생할 때 어떤 것에 대해 새로운 배열을 추가로 생성해야 하는지, 언제 초기화 작업을 수행해야 하는지 확인하기
+    + 시간 복잡도를 고려하고, 초기 상태로 돌아가기 위한 최소 반복 횟수에 대해 확인하기
 
 <details>
 <summary>풀이 CODE</summary>
 <div markdown="1">
 
 ```Python3
+T = int(input())
+for _ in range(T):
+    N, M = map(int, input().split())
+    array = [[-1] * N for _ in range(N)]
+    next_array = [[-1] * N for _ in range(N)]
+    count = [[0] * N for _ in range(N)]
+    direction = {'D':0,
+                'L':1,
+                'R':2,
+                'U':3}
+    dx = [1, 0, 0, -1]
+    dy = [0, -1, 1, 0]
+    
+    for _ in range(M):
+        x, y, d = input().split()
+        x, y = int(x), int(y)
+        dir_idx = direction[d]
+        array[x - 1][y - 1] = dir_idx
+        next_array[x - 1][y - 1] = dir_idx
+        count[x - 1][y - 1] += 1
+    
+    def in_range(x, y):
+        return (0 <= x and x < N) and (0 <= y and y < N)
 
+    def move(x, y, dir_idx):
+        nx = x + dx[dir_idx]
+        ny = y + dy[dir_idx]
+        if in_range(nx, ny):
+            next_array[nx][ny] = dir_idx
+            count[nx][ny] += 1
+            count[x][y] -= 1
+        else:
+            next_array[x][y] = 3 - dir_idx
+        
+    def move_all():
+        for i in range(N):
+            for j in range(N):
+                next_array[i][j] = -1
+        for i in range(N):
+            for j in range(N):
+                if array[i][j] > -1:
+                    x, y, dir_idx = i, j, array[i][j]
+                    move(x, y, dir_idx)
+    def delete():
+        for i in range(N):
+            for j in range(N):
+                if count[i][j] > 1:
+                    count[i][j] = 0
+                    next_array[i][j] = -1
+        for i in range(N):
+            for j in range(N):
+                array[i][j] = next_array[i][j]
+    def simulate():
+        move_all()
+        delete()
+
+    for _ in range(2 * N):
+        simulate()
+
+    cnt = 0
+    for row in count:
+        cnt += sum(row)
+    
+    print(cnt)
+```
+</div>
+</details>
+
+<details>
+<summary>해설 CODE</summary>
+<div markdown="1">
+
+```Python3
+MAX_N = 50
+
+# 변수 선언 및 입력
+t = int(input())
+n, m = 0, 0
+marbles = []
+marble_cnt = [
+    [0 for _ in range(MAX_N + 1)]
+    for _ in range(MAX_N + 1)
+]
+
+# 입력으로 주어진 방향을 정의한 dx, dy에 맞도록
+# 변환하는데 쓰이는 dict를 정의합니다.
+mapper = {
+    'U': 0,
+    'R': 1,
+    'L': 2,
+    'D': 3
+}
+
+
+# 해당 위치가 격자 안에 들어와 있는지 확인합니다.
+def in_range(x, y):
+    return 1 <= x and x <= n and 1 <= y and y <= n
+
+
+# 해당 구슬이 1초 후에 어떤 위치에서 어떤 방향을 보고 있는지를 구해
+# 그 상태를 반환합니다.
+def move(marble):
+    # 구슬이 벽에 부딪혔을 때의 처리를 간단히 하기 위해
+    # dir 기준 0, 3이 대칭 1, 2가 대칭이 되도록 설정합니다.
+    dxs, dys = [-1, 0, 0, 1], [0, 1, -1, 0]
+    
+    x, y, move_dir = marble
+    
+    # 바로 앞에 벽이 있는지를 판단합니다.
+    nx, ny = x + dxs[move_dir], y + dys[move_dir]
+    
+    # Case 1 : 벽이 없는 경우에는 그대로 한 칸 전진합니다.
+    if in_range(nx, ny):
+        return (nx, ny, move_dir)
+    # Case 2 : 벽이 있는 경우에는 방향을 반대로 틀어줍니다.
+    # 위에서 dx, dy를 move_dir 기준 0, 3이 대칭 1, 2가 대칭이 되도록
+    # 설정해놨기 때문에 간단하게 처리가 가능합니다.
+    else:
+        return (x, y, 3 - move_dir)
+    
+
+# 구슬을 전부 한 번씩 움직여봅니다.
+def move_all():
+    for i, marble in enumerate(marbles):
+        marbles[i] = move(marble)
+
+
+# 해당 구슬과 충돌이 일어나는 구슬이 있는지 확인합니다.
+# 이를 위해 자신의 현재 위치에 놓은 구슬의 개수가
+# 자신을 포함하여 2개 이상인지 확인합니다.
+def duplicate_marble_exist(target_idx):
+    target_x, target_y, _ = marbles[target_idx]
+    
+    return marble_cnt[target_x][target_y] >= 2
+    
+
+# 충돌이 일어나는 구슬을 전부 지워줍니다.
+def remove_duplicate_marbles():
+    global marbles
+    
+    # Step2-1 : 각 구슬의 위치에 count를 증가 시킵니다.
+    for x, y, _ in marbles:
+        marble_cnt[x][y] += 1
+
+    # Step2-2 : 충돌이 일어나지 않은 구슬만 전부 기록합니다.
+    remaining_marbles = [
+        marble
+        for i, marble in enumerate(marbles)
+        if not duplicate_marble_exist(i)
+    ]
+    
+    # Step2-3 : 나중을 위해 각 구슬의 위치에 적어놓은 count 수를 다시 초기화합니다.
+    for x, y, _ in marbles:
+        marble_cnt[x][y] -= 1
+    
+    # Step2-4 : 충돌이 일어나지 않은 구슬들로 다시 채워줍니다.
+    marbles = remaining_marbles
+
+
+# 조건에 맞춰 시뮬레이션을 진행합니다.
+def simulate():
+    # Step1
+    # 구슬을 전부 한 번씩 움직여봅니다.
+    move_all()
+    
+    # Step2
+    # 움직임 이후에 충돌이 일어나는 구슬들을 골라 목록에서 지워줍니다.
+    remove_duplicate_marbles()
+
+
+for _ in range(t):
+    # 새로운 테스트 케이스가 시작될때마다 기존에 사용하던 값들을 초기화해줍니다.
+    marbles = []
+    
+    # 입력
+    n, m = tuple(map(int, input().split()))
+    for _ in range(m):
+        x, y, d = tuple(input().split())
+        x, y = int(x), int(y)
+        marbles.append((x, y, mapper[d]))
+    
+    # 2 * n번 이후에는 충돌이 절대 일어날 수 없으므로
+    # 시뮬레이션을 총 2 * n번 진행합니다.
+    for _ in range(2 * n):
+        simulate()
+    
+    # 출력
+    print(len(marbles))
 ```
 </div>
 </details>
@@ -1647,6 +1853,16 @@ print(ans)
 
 <details>
 <summary>풀이 CODE</summary>
+<div markdown="1">
+
+```Python3
+
+```
+</div>
+</details>
+
+<details>
+<summary>해설 CODE</summary>
 <div markdown="1">
 
 ```Python3
