@@ -1610,7 +1610,7 @@ print(ans)
     + 각 array는 구슬의 방향 dir_idx(0 ~ 3)을 담고 있으며 구슬이 없는 곳은 -1의 값을 가짐
     + in_range 함수를 통해 격자 내에 위치하는지 확인
     + move 함수를 통해 특정 구슬 움직이기
-    	+ 이동 후 구슬 위치 (nx, ny)가 격자 내에 있다면 next_array의 (nx, ny)에 해당 dir_idx을 담기. count의 (nx, ny)는 + 1, count의 (x, y)는 -1
+    	+ 이동 후 구슬 위치 (nx, ny)가 격자 내에 있다면 ```next_array[nx][ny] = dir_idx```. 이후 ```count[nx][ny] += 1, count[x][y] -= 1```
  	+ 격자 내에 없다면 방향만 전환
     + move_all 함수를 통해 모든 구슬 움직이기
         + next_array의 모든 값 -1로 초기화
