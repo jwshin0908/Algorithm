@@ -1912,8 +1912,8 @@ for _ in range(t):
 		end_points = [2, 3, 4, 5, 6, 7]
 		
 		for start, end in zip(start_points, end_points):
-		    graph[start][end] = 1
-		    graph[end][start] = 1
+		    graph[start].append(end)
+		    graph[end].append(start)
 		
 		root_vertex = 1
 		print(root_vertex)
