@@ -1972,8 +1972,10 @@ for _ in range(t):
 + BFS는 꼭 재귀함수 없이 queue라는 자료구조를 이용하여 작성
     + BFS - queue를 이용해 지금까지 방문한 노드들을 관리
     + DFS - 새로 방문하게 되는 위치가 생기면 해당 위치를 DFS함수의 인자로 넘기며 재귀함수를 호출해 탐색을 재개
++ DFS는 재귀함수로 새로 찾은 노드를 넘기지만, BFS는 새로 찾은 노드를 큐에 추가하고 탐색을 유지하기 위해 queue가 empty가 되기 전까지 계속 진행한다는 점에서의 차이
 + 구현 방법
     + 인접 행렬
+    	+ graph라는 이름의 2차원 배열을 만들어, 두 정점이 연결되어 있다면 1 아니라면 0으로 표시
      	+ 새로 방문하게 되는 노드를 queue에 계속 넣어주며, queue가 empty 상태가 되기 전까지 queue에서 가장 앞에 있는 원소를 pop하여 해당 원소를 현재 원소의 위치로 설정
         + BFS에서는 queue에서 뽑힌 위치 curr_v가 현재 위치가 됨
         + 현재 위치를 기준으로 연결된 정점을 탐색하기 위해서는 1번부터 정점의 개수인 VERTICES_NUM까지 for문 순회
@@ -1981,11 +1983,127 @@ for _ in range(t):
         + 정점의 개수만큼의 크기를 갖는 visited 배열을 만들어 queue에 새로운 위치를 넣어주는 순간에 꼭 해당 위치의 visited 값을 true로 변경하여, 다시는 탐색 도중에 해당 위치에 방문하지 않도록 해야만 함
         + 1번 정점에서 시작하여 연결되어 있으며 아직 방문해본 적이 없는 정점이 발견되면 visited 값을 true로 변경한 뒤 계속 탐색을 진행하게 됨
 		```Python3
+		from collections import deque
+		
+		VERTICES_NUM = 7
+		EDGES_NUM = 6
+		
+		graph = [
+		    [0 for _ in range(VERTICES_NUM + 1)]
+		    for _ in range(VERTICES_NUM + 1)
+		]
+		visited = [False for _ in range(VERTICES_NUM + 1)]
+		q = deque()
+		
+		def bfs():
+		    while q:
+		        curr_x = q.popleft()
+		        for next_v in range(1, VERTICES_NUM +1):
+		            if graph[curr_x][next_v] and not visited[next_v]:
+		                print(next_v)
+		                visited[next_v] = True
+		                q.append(next_v)
+		
+		start_points = [1, 1, 1, 2, 4, 6]
+		end_points = [2, 3, 4, 5, 6, 7]
+		
+		for start, end in zip(start_points, end_points):
+		    graph[start][end] = 1
+		    graph[end][start] = 1
+		
+		root_vertex = 1
+		print(root_vertex)
+		visited[root_vertex] = True
+		q.append(root_vertex)
+		bfs()
 		```
     + 인접 리스트
-     	+ ㅇ
+     	+ graph라는 이름의 1차원 배열을 만들고, graph[i]는 각각 i번째 정점에 연결되어 있는 정점들 목록을 관리하는 동적배열
+        + 인접 행렬을 이용하는 경우와 마찬가지로 queue를 이용, 연결된 정점을 찾아내는 방법만 조금 다름
+        + 현재 위치를 vertex라 했을 때, 인접리스트에서는 연결된 정점이 전부 graph[vertex] 안에 리스트 형태로 들어있게 됨
+        + graph[vertex]에 들어있는 원소들을 순서대로 순회하면 해당 원소(curr_v)는 그 즉시 vertex에 연결되어 있는 원소가 됨
+        + visited[curr_v]값이 false인지만 확인하여 방문되지 않은 정점에 대해서만 다음 탐색을 진행
+        + 1번 정점에서 시작하여 연결되어 있으며 아직 방문해본 적이 없는 정점이 발견되면 visited 값을 true로 변경한 뒤 계속 탐색을 진행
 		```Python3
+		from collections import deque
+		
+		VERTICES_NUM = 7
+		EDGES_NUM = 6
+		
+		graph = [[] for _ in range(VERTICES_NUM + 1)]
+		visited = [False for _ in range(VERTICES_NUM + 1)]
+		q = deque()
+		
+		def bfs():
+		    while q:
+		        curr_x = q.popleft()
+		        for next_v in graph[curr_x]:
+		            if not visited[next_v]:
+		                print(next_v)
+		                visited[next_v] = True
+		                q.append(next_v)
+		
+		start_points = [1, 1, 1, 2, 4, 6]
+		end_points = [2, 3, 4, 5, 6, 7]
+		
+		for start, end in zip(start_points, end_points):
+		    graph[start].append(end)
+		    graph[end].append(start)
+		
+		root_vertex = 1
+		print(root_vertex)
+		visited[root_vertex] = True
+		q.append(root_vertex)
+		bfs()
 		```
+
+**격자에서의 BFS**
++ 격자 문제에서는 굳이 그래프를 표현하기 위한 인접 행렬 혹은 인접 리스트를 만들어줄 필요가 없음
++ queue가 필요하며, queue에 각 노드의 위치를 넣어야 함
++ 격자에서의 BFS 탐색에서 현재 위치를 표현하기 위해서는 (x, y) 이렇게 2개의 값이 꼭 필요. 여기서 (x, y)는 수학에서의 x, y가 아닌 행렬에서의 (i, j)와 같이 x행, y열을 의미
++ BFS는 queue가 empty 상태가 되기 전까지 계속 탐색을 반복
++ DFS는 함수의 인자 값으로 현재 위치를 반환해주지만, BFS는 현재 queue에서 가장 앞에 있는 원소를 현재 위치로 설정
++ 꼭 queue에서 해당 원소를 pop 해줘야만 함에 유의
++ 구현 방법
+	+ 현재 위치 (x, y)가 정해졌다면, 이 위치로부터 갈 수 있는 곳들을 전부 탐색하여 그 중 갈 수 있는 곳이 있다면, 해당 위치에 방문 체크를 해준 뒤 해당 위치를 queue에 넣어주는 식으로 구현
+	+ dx, dy 테크닉을 이용하여 new_x, new_y에 인접한 칸의 위치가 오도록 설정
+	+ 인접한 위치 (new_x, new_y)로 이동해야 할 필요가 있다면, visited 값을 true로 설정해주고 queue에 해당 위치를 넣어줌
+	+ (new_x, new_y)로 이동해도 되는지를 판단해주는 함수를 편의상 CanGo라고 작성
+	+ 이 조건을 만족하는 경우에만 새로 queue에 넣어주기
+	```Python3
+	answer = [[0 for _ in range(5)] for _ in range(5)]
+	visited = [[0 for _ in range(5)] for _ in range(5)]
+	order = 1
+	
+	def in_range(x, y):
+	    return 0 <= x and x < 5 and 0 <= y and y < 5
+	
+	def can_go(x, y):
+	    if not in_range(x, y):
+	        return False
+	    
+	    if visited[x][y] or grid[x][y] == 0:
+	        return False
+	    
+	    return True
+	
+	def dfs(x, y):
+	    global order
+	    dxs, dys = [1, 0], [0, 1]
+	    for dx, dy in zip(dxs, dys):
+	        new_x, new_y = x + dx, y + dy
+	        if can_go(new_x, new_y):
+	            answer[new_x][new_y] = order
+	            order += 1
+	            visited[new_x][new_y] = 1
+	            dfs(new_x, new_y)
+	
+	answer[0][0] = order
+	order += 1
+	visited[0][0] = 1
+	dfs(0, 0)
+	```
+
 ---
 
 **오답 문제 1 : 000**
