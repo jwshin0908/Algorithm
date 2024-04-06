@@ -623,7 +623,7 @@ for row in range(1, n + 1):
 + 문제 상황
     + 길이가 n인 문자열 A가 주어졌을 때, 적절하게 특정 횟수만큼 오른쪽으로 shift하여, shift 된 이후의 문자열에 Run-Length Encoding을 진행했을 때의 최소 길이를 구하기
     + Run-Length Encoding : 연속해서 나온 문자와 연속해서 나온 개수로 나타내는 방식
-    	+ aaabbbbcaa $\rightarrow$  a3b4c1a2
+    	+ aaabbbbcaa $\rightarrow$ a3b4c1a2
     + ```1 ≤ 문자열 A의 길이 ≤ 10```
 + 알고리즘 설계
     + 반복문을 통해 최소 1부터 최대 문자열의 길이만큼 오른쪽 shift하며 Encoding 결과 길이 계산
@@ -1834,6 +1834,128 @@ for _ in range(t):
 
 # 3. 그래프 탐색
 ## (1) DFS
+**그래프**
++ 정점과 간선으로 이루어져 있는 자료구조. 정점간의 연결 관계가 간선을 이용하여 표현
++ 구현 방법
+    + 인접 행렬
+     	+ 두 정점 i, j가 연결관계에 있다면 graph[i][j]값을 1로, 그렇지 않다면 graph[i][j] 값을 0으로 정의하여 표현
+        + 양방향 그래프라면 인접 행렬이 대칭인 모양, 단방향 그래프라면 X
+        + 그래프에서 정점의 수를 V, 간선의 수를 E라 했을 때 인접 행렬 이용시 공간복잡도는 O($V^2$)
+    + 인접 리스트
+     	+ V개의 동적 배열을 만들어 관리
+        + i번째 정점에 해당하는 동적 배열을 graph[i]
+        + V개의 동적배열을 관리하는 리스트 1개와, 각 간선별로 정점이 2개씩 동적 배열에 각각 추가되므로 공간복잡도는 O(V + E)
+
+**DFS**
++ 깊이 우선 탐색 : 특정 정점에서 시작하여 갈 수 있는 곳까지 쭉 따라 들어갔다가 더 이상 갈 곳이 없으면 빠져나오는 방식의 그래프 탐색 방법
++ DFS는 꼭 재귀함수를 이용하여 작성
+    + 시작점으로부터 연결된 모든 정점을 전부 방문
+    + 이미 방문한 정점은 다시는 방문하지 않음
++ 구현 방법
+    + 인접 행렬
+     	+ graph라는 이름의 2차원 배열을 만들어, 두 정점이 연결되어 있다면 1 아니라면 0으로 표시
+        + 첫 번째 인자인 vertex는 현재 위치를 의미
+        + 현재 위치를 기준으로 연결된 정점을 탐색하기 위해서는 1번부터 정점의 개수인 VERTICES_NUM까지 for문 순회
+        + 이 지점을 curr_v라 했을 때, graph[vertex][curr_v] 값이 1이면서 curr_v 정점에 방문했던 적이 없는지를 확인
+        + visited : 방문했던 정점을 다시는 방문하지 않도록 하는 역할
+        + 정점의 개수만큼의 크기를 갖는 visited 배열을 만들어 그 다음 DFS 함수를 호출하기 전에 꼭 해당 위치의 visited 값을 true로 변경하여, 다시는 탐색 도중에 해당 위치에 방문하지 않도록 해야함
+		```Python3
+		VERTICES_NUM = 7
+		EDGES_NUM = 6
+		
+		graph = [
+		    [0 for _ in range(VERTICES_NUM + 1)]
+		    for _ in range(VERTICES_NUM)
+		]
+		
+		visited = [False for _ in range(VERTICES_NUM + 1)]
+		
+		def dfs(vertex):
+		    for curr_v in range(1, VERTICES_NUM + 1):
+			if graph[vertex][curr_v] and not visited[curr_v]:
+			    print(curr_v)
+			    visited[curr_v] = True
+			    dfs(curr_v)
+		start_points = [1, 1, 1, 2, 4, 6]
+		end_points = [2, 3, 4, 5, 6, 7]
+		
+		for start, end in zip(start_points, end_points):
+		    graph[start][end] = 1
+		    graph[end][start] = 1
+		
+		root_vertex = 1
+		print(root_vertex)
+		visited[root_vertex] = True
+		dfs(root_vertex)
+		```
+    + 인접 리스트
+     	+ graph라는 이름의 1차원 배열을 만들고, graph[i]는 각각 i번째 정점에 연결되어 있는 정점들 목록을 관리하는 동적배열
+        + 현재 위치를 vertex라 했을 때, 인접리스트에서는 연결된 정점이 전부 graph[vertex] 안에 리스트 형태로 들어있게 됨
+        + graph[vertex] 에 들어있는 원소들을 순서대로 순회하면 해당 원소(curr_v)는 그 즉시 vertex에 연결되어 있는 원소가 됨
+        + visited[curr_v]값이 false인지만 확인하여 방문되지 않은 정점에 대해서만 다음 탐색을 진행
+        + 1번 정점에서 시작하여 연결되어 있으며 아직 방문해본 적이 없는 정점이 발견되면 visited 값을 true로 변경한 뒤, 다시 재귀적으로 해당 위치로 DFS 함수를 호출하는 것을 반복
+		```Python3
+		VERTICES_NUM = 7
+		EDGES_NUM = 6
+		
+		graph = [[] for _ in range(VERTICES_NUM + 1)]
+		visited = [False for _ in range(VERTICES_NUM + 1)]
+		
+		def dfs(vertex):
+		    for curr_v in graph[vertex]:
+		        if not visited[curr_v]:
+		            print(curr_v)
+		            visited[curr_v] = True
+		            dfs(curr_v)
+		
+		start_points = [1, 1, 1, 2, 4, 6]
+		end_points = [2, 3, 4, 5, 6, 7]
+		
+		for start, end in zip(start_points, end_points):
+		    graph[start][end] = 1
+		    graph[end][start] = 1
+		
+		root_vertex = 1
+		print(root_vertex)
+		visited[root_vertex] = True
+		dfs(root_vertex)
+		```
+
+---
+
+**오답 문제 1 : 000**
++ 문제 상황
+    + 
++ 알고리즘 설계
+    + 
++ 틀린 이유
+    + 
++ 수정
+    + 
++ 느낀 점
+    + 
+
+<details>
+<summary>풀이 CODE</summary>
+<div markdown="1">
+
+```Python3
+
+```
+</div>
+</details>
+
+<details>
+<summary>해설 CODE</summary>
+<div markdown="1">
+
+```Python3
+
+```
+</div>
+</details>
+
+---
 
 ## (2) BFS 탐색
 
