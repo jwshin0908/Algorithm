@@ -1865,7 +1865,7 @@ for _ in range(t):
 		
 		graph = [
 		    [0 for _ in range(VERTICES_NUM + 1)]
-		    for _ in range(VERTICES_NUM)
+		    for _ in range(VERTICES_NUM + 1)
 		]
 		
 		visited = [False for _ in range(VERTICES_NUM + 1)]
