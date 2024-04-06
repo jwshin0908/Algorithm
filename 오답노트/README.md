@@ -2105,34 +2105,61 @@ for _ in range(t):
 
 ---
 
-**오답 문제 1 : 000**
+**오답 문제 1 : 갈 수 있는 곳들**
 + 문제 상황
-    + 
+    + 숫자 0, 1로만 이루어진 n * n 격자가 주어졌을 때, k개의 시작점으로부터 상하좌우 인접한 곳으로만 이동하여 도달 가능한 칸의 수를 구하는 프로그램을 작성
+    + 숫자 0은 해당 칸이 이동할 수 있는 곳임을, 숫자 1은 해당 칸이 이동할 수 없는 곳임을 의미
+    + ```1 ≤ r ≤ n, 1 ≤ c ≤ n```
 + 알고리즘 설계
-    + 
+    + queue에 주어진 출발점들을 담고 bfs 내에서 꺼내서 쓰도록 설계
 + 틀린 이유
-    + 
+    + 각각의 출발점에 대해서 bfs를 for문으로 돌려 한 곳에 모아서 결과값을 내려다보니 시간 초과 발생
 + 수정
-    + 
+    + 어차피 popleft 통해서 다 순회하게 되기 때문에 주어진 출발점들을 모두 queue에 넣고 bfs 한 번에 돌려버리기
 + 느낀 점
-    + 
+    + 문제 상황에 맞는 bfs 적용 익히기
 
 <details>
 <summary>풀이 CODE</summary>
 <div markdown="1">
 
 ```Python3
+from collections import deque
 
-```
-</div>
-</details>
+n, k = map(int, input().split())
+graph = []
+for _ in range(n):
+    graph.append(list(map(int, input().split())))
 
-<details>
-<summary>해설 CODE</summary>
-<div markdown="1">
+visited = [[0] * n for _ in range(n)]
 
-```Python3
+q = deque()
+for _ in range(k):
+    r, c = map(int, input().split())
+    q.append((r - 1, c - 1))
+    visited[r - 1][c - 1] = 1
 
+def in_range(x, y):
+    return (0 <= x and x < n) and (0 <= y and y < n)
+
+def bfs(graph, visited):
+    dx = [1, 0, 0, -1]
+    dy = [0, -1, 1, 0]
+    while q:
+        x, y = q.popleft()
+        for i in range(4):
+            nx = x + dx[i]
+            ny = y + dy[i]
+            if in_range(nx, ny) and visited[nx][ny] == 0 and graph[nx][ny] == 0:
+                visited[nx][ny] = 1
+                q.append((nx, ny))
+
+bfs(graph, visited)
+
+cnt = 0
+for row in visited:
+    cnt += sum(row)
+print(cnt)
 ```
 </div>
 </details>
