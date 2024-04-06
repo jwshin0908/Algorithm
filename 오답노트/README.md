@@ -1836,6 +1836,7 @@ for _ in range(t):
 ## (1) DFS
 **그래프**
 + 정점과 간선으로 이루어져 있는 자료구조. 정점간의 연결 관계가 간선을 이용하여 표현
++ 시작점으로부터 연결된 모든 정점을 전부 방문 + 이미 방문한 정점은 다시는 방문하지 않음음
 + 구현 방법
     + 인접 행렬
      	+ 두 정점 i, j가 연결관계에 있다면 graph[i][j]값을 1로, 그렇지 않다면 graph[i][j] 값을 0으로 정의하여 표현
@@ -1846,7 +1847,7 @@ for _ in range(t):
         + i번째 정점에 해당하는 동적 배열을 graph[i]
         + V개의 동적배열을 관리하는 리스트 1개와, 각 간선별로 정점이 2개씩 동적 배열에 각각 추가되므로 공간복잡도는 O(V + E)
 
-**DFS**
+**그래프에서의 DFS**
 + 깊이 우선 탐색 : 특정 정점에서 시작하여 갈 수 있는 곳까지 쭉 따라 들어갔다가 더 이상 갈 곳이 없으면 빠져나오는 방식의 그래프 탐색 방법
 + DFS는 꼭 재귀함수를 이용하여 작성
     + 시작점으로부터 연결된 모든 정점을 전부 방문
@@ -1920,7 +1921,71 @@ for _ in range(t):
 		visited[root_vertex] = True
 		dfs(root_vertex)
 		```
+**격자에서의 DFS**
++ 현재 위치를 표현하기 위해서는 (x, y) 이렇게 2개의 값이 꼭 필요 : 행렬에서의 (i, j)와 같이 x행, y열을 의미
++ visited 배열 역시 2차원으로 구성
++ 구현 방법
+    + 현재 위치 (x, y)로부터 갈 수 있는 곳들을 전부 탐색하여, 그 중 갈 수 있는 곳이 있다면, 해당 위치에 방문 체크를 해준 뒤 재귀함수를 다시 호출해주는 식으로 구현
+    + dx, dy 테크닉을 이용하여 new_x, new_y에 인접한 칸의 위치가 오도록 설정
+    + 인접한 위치 (new_x, new_y)로 이동해야 할 필요가 있다면, visited 값을 1로 설정해주고 재귀함수를 호출
+    + visited 배열에 방문 표시를 하는 위치를 꼭 재귀 함수 호출 전에 하지 않고, 재귀 함수에 진입하는 순간에 진행하는 것 역시 가능
+    + 다만 BFS 탐색에서는 꼭 queue에 넣기 전에 visited 배열에 방문 표시를 해야 하므로, 가능하면 DFS 탐색 시에도 재귀 함수 호출 직전에 visited 표기를 하는 패턴으로 연습
+	```Python3
+	answer = [[0 for _ in range(5)] for _ in range(5)]
+	visited = [[0 for _ in range(5)] for _ in range(5)]
+	order = 1
+	
+	def in_range(x, y):
+	    return 0 <= x and x < 5 and 0 <= y and y < 5
+	
+	def can_go(x, y):
+	    if not in_range(x, y):
+	        return False
+	    
+	    if visited[x][y] or grid[x][y] == 0:
+	        return False
+	    
+	    return True
+	
+	def dfs(x, y):
+	    global order
+	    dxs, dys = [1, 0], [0, 1]
+	    for dx, dy in zip(dxs, dys):
+	        new_x, new_y = x + dx, y + dy
+	        if can_go(new_x, new_y):
+	            answer[new_x][new_y] = order
+	            order += 1
+	            visited[new_x][new_y] = 1
+	            dfs(new_x, new_y)
+	
+	answer[0][0] = order
+	order += 1
+	visited[0][0] = 1
+	dfs(0, 0)
+	```
 
+---
+
+## (2) BFS 탐색
+**BFS**
++ 너비 우선 탐색 : 시작점을 기준으로 가장 가까운 곳부터 순서대로 탐색을 진행하는 방식
++ BFS는 꼭 재귀함수 없이 queue라는 자료구조를 이용하여 작성
+    + BFS - queue를 이용해 지금까지 방문한 노드들을 관리
+    + DFS - 새로 방문하게 되는 위치가 생기면 해당 위치를 DFS함수의 인자로 넘기며 재귀함수를 호출해 탐색을 재개
++ 구현 방법
+    + 인접 행렬
+     	+ 새로 방문하게 되는 노드를 queue에 계속 넣어주며, queue가 empty 상태가 되기 전까지 queue에서 가장 앞에 있는 원소를 pop하여 해당 원소를 현재 원소의 위치로 설정
+        + BFS에서는 queue에서 뽑힌 위치 curr_v가 현재 위치가 됨
+        + 현재 위치를 기준으로 연결된 정점을 탐색하기 위해서는 1번부터 정점의 개수인 VERTICES_NUM까지 for문 순회
+        + 이 지점을 next_v라 했을 때, graph[curr_v][next_v] 값이 1이면서 next_v 정점에 방문했던 적이 없는 지를 확인
+        + 정점의 개수만큼의 크기를 갖는 visited 배열을 만들어 queue에 새로운 위치를 넣어주는 순간에 꼭 해당 위치의 visited 값을 true로 변경하여, 다시는 탐색 도중에 해당 위치에 방문하지 않도록 해야만 함
+        + 1번 정점에서 시작하여 연결되어 있으며 아직 방문해본 적이 없는 정점이 발견되면 visited 값을 true로 변경한 뒤 계속 탐색을 진행하게 됨
+		```Python3
+		```
+    + 인접 리스트
+     	+ ㅇ
+		```Python3
+		```
 ---
 
 **오답 문제 1 : 000**
@@ -1956,8 +2021,6 @@ for _ in range(t):
 </details>
 
 ---
-
-## (2) BFS 탐색
 
 ## (3) 가중치가 동일한 그래프에서의 BFS
 
