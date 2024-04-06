@@ -2071,37 +2071,36 @@ for _ in range(t):
 	+ (new_x, new_y)로 이동해도 되는지를 판단해주는 함수를 편의상 CanGo라고 작성
 	+ 이 조건을 만족하는 경우에만 새로 queue에 넣어주기
 	```Python3
-	answer = [[0 for _ in range(5)] for _ in range(5)]
-	visited = [[0 for _ in range(5)] for _ in range(5)]
-	order = 1
-	
 	def in_range(x, y):
 	    return 0 <= x and x < 5 and 0 <= y and y < 5
 	
 	def can_go(x, y):
 	    if not in_range(x, y):
 	        return False
-	    
 	    if visited[x][y] or grid[x][y] == 0:
 	        return False
-	    
 	    return True
 	
-	def dfs(x, y):
+	def push(x, y):
 	    global order
-	    dxs, dys = [1, 0], [0, 1]
-	    for dx, dy in zip(dxs, dys):
-	        new_x, new_y = x + dx, y + dy
-	        if can_go(new_x, new_y):
-	            answer[new_x][new_y] = order
-	            order += 1
-	            visited[new_x][new_y] = 1
-	            dfs(new_x, new_y)
+	    answer[x][y] = order
+	    order += 1
+	    visited[x][y] = True
+	    q.append((x, y))
 	
-	answer[0][0] = order
-	order += 1
-	visited[0][0] = 1
-	dfs(0, 0)
+	def bfs():
+	    dxs = [1, 0]
+	    dys = [0, 1]
+	
+	    while q:
+	        x, y = q.popleft()
+	        for dx, dy in zip(dxs, dys):
+	            new_x, new_y = x + dx, y + dy
+	            if can_go(new_x, new_y):
+	                push(new_x, new_y)
+	
+	push(0, 0)
+	bfs()
 	```
 
 ---
