@@ -2016,6 +2016,65 @@ def choose(curr_num, cnt):
 choose(1, 0)
 ```
 
+---
+
+**오답 문제 1 : n개 중에 m개 뽑기**
++ 문제 상황
+    + 1이상 N이하의 숫자 중 M개의 숫자를 골라 만들 수 있는 모든 조합을 구해주는 프로그램을 작성
++ 알고리즘 설계
+    + 각각의 위치에 있는 숫자를 선택할 것인지 말 것인지에 대한 모든 가짓수에 대해 탐색하는 2^n 재귀를 생성
+    + 그 중 정확히 m개가 선택된 경우만 출력하는 방식
+    + 현재 어떤 숫자를 뽑을지 말지 고민중인지와 지금까지 선택한 숫자가 몇 개인지를 인자로 가지고 있어야 함
++ 틀린 이유
+    + 백트래킹 이해 부족
++ 수정
+    + X
++ 느낀 점
+    + 조합 구현 코드 암기하기
+
+<details>
+<summary>해설 CODE</summary>
+<div markdown="1">
+
+```Python3
+# 변수 선언 및 입력
+
+n, m = tuple(map(int, input().split()))
+combination = []
+
+
+# 방문한 원소들을 출력해줍니다.
+def print_combination():
+    for elem in combination:
+        print(elem, end = " ")
+    
+    print()
+
+
+def find_combination(curr_num, cnt):
+    # n개의 숫자를 모두 탐색했으면 더 이상 탐색하지 않습니다.
+    if curr_num == n + 1:
+        # 탐색하는 과정에서 m개의 숫자를 뽑은 경우 답을 출력해줍니다.
+        if cnt == m:
+            print_combination()
+        return
+
+    # curr_num에 해당하는 숫자를 사용했을 때의 경우를 탐색합니다.
+    combination.append(curr_num)
+    find_combination(curr_num + 1, cnt + 1)
+    combination.pop()
+
+    # curr_num에 해당하는 숫자를 사용하지 않았을 때의 경우를 탐색합니다.
+    find_combination(curr_num + 1, cnt)
+
+
+find_combination(1, 0)
+```
+</div>
+</details>
+
+---
+
 # 3. 그래프 탐색
 ## (1) DFS
 **그래프**
