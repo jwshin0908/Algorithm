@@ -1829,6 +1829,157 @@ for _ in range(t):
 
 # 2. 백트래킹
 ## (1) K개 중 하나를 N번 선택하기
+**재귀함수**
++ 어떤 함수 f가 해당 함수를 구현하는 데 동일한 함수 f를 다시 이용하는 경우
++ 종료 조건과 재귀 호출 부분으로 나뉨
+
+**둘 중 하나를 N번 선택하기**
++ n이 3이었다면, 3자리를 만들어야 하며 각 자리마다 0 혹은 1이 채워져야 합니다. 따라서 먼저 첫 번째 자리에서 시작하여 0을 넣을지, 1을 넣을지 결정
++ 두 번째 자리에 0, 1 중 하나를 선택하여 적어줌
++ 세 번째 자리에도 0, 1 중 하나를 적어줌
++ 세 번째 자리까지 채워졌다면 현재 숫자(그림에서의 011)를 출력한 뒤, 그 다음 숫자를 만드는 것을 재귀적으로 반복
++ 각 과정에 걸쳐 숫자를 선택할 때마다 리스트에 각 숫자를 순서대로 넣어줍
++ C(4)에 오게 되었다면, 함수 정의상 네 번째 자리에 들어갈 숫자를 결정해야 하지만 N = 3이었기 때문에, 3번째 자리까지만 결정하면 되므로 더 진행하지 않고 현재 만들어진 리스트를 출력한 뒤, return를 통해 퇴각 $\rightarrow$ 즉 curr_num == n + 1인 경우가 종료조건
+```Python3
+# N자리의 2진수를 출력하는 코드
+# Chooser(int curr_num) : curr_num번째 위치에 0 혹은 1을 선택하는 함수
+n = 3
+answer = []
+
+def print_answer():
+    for elem in answer:
+        print(elem, end = ' ')
+    print()
+
+def choose(curr_num):
+    if curr_num == n + 1:
+        print_answer()
+        return
+
+    answer.append(0)
+    choose(curr_num + 1)
+    answer.pop()
+
+    answer.append(1)
+    choose(curr_num + 1)
+    answer.pop()
+    
+    return
+
+choose(1)
+```
+
+---
+
+**오답 문제 1 : 아름다운 수**
++ 문제 상황
+    + 1이상 4이하의 숫자로만 이루어져 있으면서, 정확히 해당 숫자만큼 연달아 같은 숫자가 나오는 숫자를 아름다운 수라 함
+    + n자리 아름다운 수가 몇 개 있는지를 구하는 프로그램을 작성
++ 알고리즘 설계
+    + choose 함수를 통해 1이상 4이하의 숫자로 구성된 n자리 숫자를 모두 구현
+    + 이후 beautiful num 함수를 통해 아름다운 수인지 각각 검사하고 개수를 구함
++ 틀린 이유
+    + 처음부터 수를 구성하는 데에 있어 아름다운 수를 구현하려다보니 오류 발생
++ 수정
+    + 구성할 수 있는 모든 n자리 수를 구현한 후 해당 수에 대해 아름다운 수인지 검사해 개수를 더함
++ 느낀 점
+    + 시간 초과가 안 발생한다는 전제 하에 구현상 더 편리한 방법 사용하기
+
+<details>
+<summary>풀이 CODE</summary>
+<div markdown="1">
+
+```Python3
+n = int(input())
+result = []
+
+def beautiful_num(result):
+    i = 0
+    while True:
+        num = result[i]
+        if (i + num) > n:
+            return False
+            break
+        if result[i : i + num] != [num] * num:
+            return False
+            break
+        i = i + num
+        if i == n:
+            return True
+            break
+        if i > n:
+            return False
+            break
+
+beautiful_cnt = 0
+def choose(cnt):
+    global beautiful_cnt
+    if cnt == n:
+        beautiful_cnt += int(beautiful_num(result))
+        return
+    for i in range(1, 5):
+        result.append(i)
+        choose(cnt + 1)
+        result.pop()
+
+choose(0)
+print(beautiful_cnt)
+```
+</div>
+</details>
+
+<details>
+<summary>해설 CODE</summary>
+<div markdown="1">
+
+```Python3
+# 변수 선언 및 입력:
+n = int(input())
+ans = 0
+seq = list()
+
+
+def is_beautiful():
+    # 연달아 같은 숫자가 나오는 시작 위치를 잡습니다.
+    i = 0
+    while i < n:
+        # 만약 연속하여 해당 숫자만큼 나올 수 없다면
+        # 아름다운 수가 아닙니다.
+        if i + seq[i] - 1 >= n:
+            return False
+        # 연속하여 해당 숫자만큼 같은 숫자가 있는지 확인합니다.
+        # 하나라도 다른 숫자가 있다면
+        # 아름다운 수가 아닙니다.
+        for j in range(i, i + seq[i]):
+            if seq[j] != seq[i]:
+                return False
+            
+        i += seq[i]
+        
+    return True
+
+
+def count_beautiful_seq(cnt):
+    global ans
+    
+    if cnt == n:
+        if is_beautiful():
+            ans += 1
+        return
+	
+    for i in range(1, 5):
+        seq.append(i)
+        count_beautiful_seq(cnt + 1)
+        seq.pop()
+
+
+count_beautiful_seq(0)
+print(ans)
+```
+</div>
+</details>
+
+---
 
 ## (2) N개 중에 M개 고르기
 
