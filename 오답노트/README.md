@@ -2008,7 +2008,7 @@ def choose(curr_num, cnt):
     answer.pop()
 
     answer.append(1)
-    choose(curr_num + 1, cnt)
+    choose(curr_num + 1, cnt + 1)
     answer.pop()
     
     return
