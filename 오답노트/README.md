@@ -1982,6 +1982,39 @@ print(ans)
 ---
 
 ## (2) N개 중에 M개 고르기
++ n자리 이진 수 중 1의 개수가 정확히 m개인 수만 구해 출력하는 코드 $\rightarrow$ 지금까지의 1의 개수를 재귀함수의 인자로 정의하여 해결
++ 원하는 2진수 조합을 지금까지 만든 1의 개수를 관리하며 전부 만들어 보기 위해 Choose(int curr_num, int cnt) 이라는 함수를 이용
++ 종료조건은 curr_num이 n + 1인 경우로 걸어주고, 그 당시에 지금까지 선택한 1의 개수인 cnt가 m인 경우에만 해당 숫자를 출력해주면 됨
++ curr_num 자리에 0을 넣는 경우 : 리스트의 가장 끝에 숫자 0을 적어주고, 그 다음 자릿수인 curr_num + 1에 해당하는 함수 Choose(curr_num + 1, cnt)를 호출
++ curr_num 자리에 1을 넣는 경우 : 1의 개수가 1 증가하므로 Choose(curr_num + 1, cnt + 1)을 호출
+
+```Python3
+# Choose(int curr_num, int cnt): 지금까지 선택한 1의 개수가 cnt개라 했을 때, curr_num번째 위치에 0 혹은 1을 선택하는 함수
+n, m = 3, 2
+answer = []
+
+def print_answer():
+    for elem in answer:
+        print(elem, end = ' ')
+    print()
+
+def choose(curr_num, cnt):
+    if curr_num == n + 1:
+        if cnt == m:
+            print_answer()
+        return
+    answer.append(0)
+    choose(curr_num + 1, cnt)
+    answer.pop()
+
+    answer.append(1)
+    choose(curr_num + 1, cnt)
+    answer.pop()
+    
+    return
+
+choose(1, 0)
+```
 
 # 3. 그래프 탐색
 ## (1) DFS
