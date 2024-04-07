@@ -1833,6 +1833,101 @@ for _ in range(t):
 + 어떤 함수 f가 해당 함수를 구현하는 데 동일한 함수 f를 다시 이용하는 경우
 + 종료 조건과 재귀 호출 부분으로 나뉨
 
+<details>
+<summary>순열 CODE</summary>
+<div markdown="1">
+
+```Python3
+array = [1, 2, 3, 4, 5]
+visited = [0] * 3
+
+used = [0] * 5
+def permutation(cnt):
+    if cnt == 3:
+        print(*visited)
+        return
+    for i in range(5):
+        if used[i] == 0:
+            used[i] = 1
+            visited[cnt] = array[i]
+            permutation(cnt + 1)
+            used[i] = 0
+            visited[cnt] = 0
+
+permutation(0)
+```
+
+</div>
+</details>
+
+<details>
+<summary>중복 순열 CODE</summary>
+<div markdown="1">
+
+```Python3
+array = [1, 2, 3, 4, 5]
+visited = [0] * 3
+
+def permutation_repetition(cnt):
+    if cnt == 3:
+        print(*visited)
+        return
+    for i in range(5):
+        visited[cnt] = array[i]
+        permutation_repetition(cnt + 1)
+        visited[cnt] = 0
+
+permutation_repetition(0)
+```
+
+</div>
+</details>
+
+<details>
+<summary>조합 CODE</summary>
+<div markdown="1">
+
+```Python3
+array = [1, 2, 3, 4, 5]
+visited = [0] * 3
+
+def combination(cnt, start):
+    if cnt == 3:
+        print(*visited)
+        return
+    for i in range(start, 5):
+        visited[cnt] = array[i]
+        combination(cnt + 1, i + 1)
+        visited[cnt] = 0
+
+combination(0, 0)
+```
+</div>
+</details>
+
+<details>
+<summary>중복 조합 CODE</summary>
+<div markdown="1">
+
+```Python3
+array = [1, 2, 3, 4, 5]
+visited = [0] * 3
+
+def combination_repetition(cnt, start):
+    if cnt == 3:
+        print(*visited)
+        return
+    for i in range(start, 5):
+        visited[cnt] = array[i]
+        combination_repetition(cnt + 1, i)
+        visited[cnt] = 0
+
+combination_repetition(0, 0)
+```
+</div>
+</details>
+
+
 **둘 중 하나를 N번 선택하기**
 + n이 3이었다면, 3자리를 만들어야 하며 각 자리마다 0 혹은 1이 채워져야 합니다. 따라서 먼저 첫 번째 자리에서 시작하여 0을 넣을지, 1을 넣을지 결정
 + 두 번째 자리에 0, 1 중 하나를 선택하여 적어줌
