@@ -2727,6 +2727,52 @@ print(ans)
 
 
 ## (3) 가중치가 동일한 그래프에서의 BFS
+**최단거리 구하기**
++ 2차원 격자를 놓고 생각해보면 인접한 칸 사이의 거리는 1이라 볼 수 있으므로 전부 가중치가 동일한 그래프
++ 2차원 격자에서 역시 BFS를 이용하면 주어진 시작점으로부터의 최단거리를 구할 수 있음
++ 가중치가 전부 1로 동일한 격자에서는 가까운 지점부터 방문을 하게 되고, 바로 직전 지점까지 방문하기 위한 최단거리 값에 1을 더해 값을 적어주기 때문에 항상 최단거리가 구해짐
++ 구현 방법
+    + 좌측 상단을 시작점으로 하여 격자에서의 BFS 탐색을 진행하되, queue에 새로운 위치를 넣게 될 때 해당 위치에 그 전 위치에 적혀 있는 값에 1을 더해 넣어줌
+    + 기존 격자에서의 BFS 탐색 코드에 시작점으로부터의 최단거리를 저장해 줄 step이라는 이름의 2차원 배열을 하나 더 만들어 주기
+    + Push 함수에 step값에 대한 갱신 부분을 추가
+    + 시작 위치에서의 step 값은 0이 되며, 이후 새로운 위치가 queue에 추가되는 경우에는 현재 위치 (x, y)에 적혀있던 최단거리 값인 step[x][y]에 1 더한 값을 넣어줘야 합
+<details>
+<summary>예시 CODE</summary>
+<div markdown="1">
+
+```Python3
+from collections import deque
+
+X_LEN = 4
+Y_LEN = 3
+
+q = deque()
+step = [[0] * Y_LEN for _ in range(X_LEN)]
+visited = [[False] * Y_LEN for _ in range(X_LEN)]
+
+def in_range(x, y):
+    return 0 <= x and x < X_LEN and 0 <= y and y < Y_LEN
+
+def push(x, y, s):
+    step[x][y] = s
+    visited[x][y] = True
+    q.append((x, y))
+
+def bfs():
+    dxs, dys = [1, 0], [0, 1]
+    while q:
+        x, y = q.popleft()
+        for dx, dy in zip(dxs, dys):
+            new_x, new_y  = x + dx, y + dy
+            if in_range(new_x, new_y) and not visited[new_x][new_y]:
+                push(new_x, new_y, step[x][y] + 1)
+
+
+push(0, 0, 0)
+bfs()
+```
+</div>
+</details>
 
 **오답 문제 1 : 000**
 + 문제 상황
