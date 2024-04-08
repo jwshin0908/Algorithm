@@ -1888,6 +1888,7 @@ permutation_repetition(0)
 <div markdown="1">
 
 ```Python3
+# 방법1
 array = [1, 2, 3, 4, 5]
 visited = [0] * 3
 
@@ -1899,6 +1900,20 @@ def combination(cnt, start):
         visited[cnt] = array[i]
         combination(cnt + 1, i + 1)
         visited[cnt] = 0
+
+combination(0, 0)
+
+# 방법2
+array = [1,2,3,4,5]
+visited = []
+def combination(cnt, start):
+    if cnt == 3:
+        print(*visited)
+        return
+    for i in range(start, 5):
+        visited.append(array[i])
+        combination(cnt + 1, i + 1)
+        visited.pop()
 
 combination(0, 0)
 ```
