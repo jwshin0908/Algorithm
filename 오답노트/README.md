@@ -2504,6 +2504,213 @@ print(cnt)
 
 ---
 
+**오답 문제 2 : 돌 잘 치우기**
++ 문제 상황
+    + 숫자 0, 1로만 이루어진 n * n 격자가 주어졌을 때, 주어진 돌 중 m개의 돌만 적절하게 치워 k개의 시작점으로부터 상하좌우 인접한 곳으로만 이동하여 도달 가능한 칸의 수를 최대로 하는 프로그램을 작성
+    + 숫자 0은 해당 칸이 이동할 수 있는 곳임을, 숫자 1은 돌이 있어 해당 칸이 이동할 수 없는 곳임을 의미
+    + ```3 ≤ n ≤ 100 / 1 ≤ k ≤ n * n / 0 ≤ m ≤ 입력으로 주어지는 초기 돌의 개수 ≤ 8```
++ 알고리즘 설계
+    + backtracking을 통해 격자 내에 주어진 돌 중에 적절히 m개를 선택
+    + 각 선택마다 k개의 시작점들을 queue에 집어넣어 bfs 탐색 진행
++ 틀린 이유
+    + backtracking n개 중에 m개 고르기 과정에서 오류가 발생했음
++ 수정
+    + 조합 구현 코드 수정
++ 느낀 점
+    + 조합을 backtracking으로 구현하는 방법 암기
+
+<details>
+<summary>풀이 CODE</summary>
+<div markdown="1">
+
+```Python3
+from collections import deque
+
+n, k, m = map(int, input().split())
+graph = []
+visited = [[0] * n for _ in range(n)]
+for _ in range(n):
+    graph.append(list(map(int, input().split())))
+
+rock = []
+for i in range(n):
+    for j in range(n):
+        if graph[i][j] == 1:
+            rock.append((i, j))
+
+q = deque()
+for _ in range(k):
+    r, c = map(int, input().split())
+    visited[r - 1][c - 1] = 1
+    q.append((r - 1, c - 1))
+
+def in_range(x, y):
+    return (0 <= x and x < n) and (0 <= y and y < n)
+
+def bfs(graph, q, visited):
+    dx = [-1, 0, 0, 1]
+    dy = [0, 1, -1, 0]
+    while q:
+        x, y = q.popleft()
+        for i in range(4):
+            nx = x + dx[i]
+            ny = y + dy[i]
+            if in_range(nx, ny) and visited[nx][ny] == 0 and graph[nx][ny] == 0:
+                visited[nx][ny] = 1
+                q.append((nx, ny))
+
+num_rock = len(rock)
+combination_result = []
+combination_visited = [0] * m
+
+bfs_sum_list = []
+def combination(cnt, start):
+    global combination_result, bfs_sum_list
+
+    bfs_graph = [g[:] for g in graph]
+    bfs_q = q.copy()
+    bfs_visited = [v[:] for v in visited]
+    bfs_result = []
+    if cnt == m:
+        for j in combination_visited:
+            bfs_graph[j[0]][j[1]] = 0
+
+        bfs(bfs_graph, bfs_q, bfs_visited)
+        bfs_sum = 0
+        max_bfs_sum = 0
+        for row in bfs_visited:
+            bfs_sum += sum(row)
+        max_bfs_sum = max(max_bfs_sum, bfs_sum)
+        bfs_sum_list.append(max_bfs_sum)
+        return
+    for i in range(start, num_rock):
+        combination_visited[cnt] = rock[i]
+        combination(cnt + 1, i + 1)
+        combination_visited[cnt] = 0
+
+combination(0, 0)
+print(max(bfs_sum_list))
+```
+</div>
+</details>
+
+<details>
+<summary>해설 CODE</summary>
+<div markdown="1">
+
+```Python3
+from collections import deque
+
+# 변수 선언 및 입력
+n, k, m = tuple(map(int, input().split()))
+a = [
+    list(map(int, input().split()))
+    for _ in range(n)
+]
+
+ans = 0
+s_pos = []
+stone_pos = [
+    (i, j)
+    for i in range(n)
+    for j in range(n)
+    if a[i][j] == 1
+]
+selected_stones = []
+
+# bfs에 필요한 변수들 입니다.
+q = deque()
+visited = [
+    [False for _ in range(n)]
+    for _ in range(n)
+]
+
+
+def in_range(x, y):
+    return 0 <= x and x < n and 0 <= y and y < n
+
+
+def can_go(x, y):
+    return in_range(x, y) and not a[x][y] and not visited[x][y]
+
+
+def bfs():
+    # queue에 남은 것이 없을때까지 반복합니다.
+    while q:
+        # queue에서 가장 먼저 들어온 원소를 뺍니다.
+        x, y = q.popleft()
+
+        dxs, dys = [1, -1, 0, 0], [0, 0, 1, -1]
+
+        # queue에서 뺀 원소의 위치를 기준으로 4방향을 확인해봅니다.
+        for dx, dy in zip(dxs, dys):
+            nx, ny = x + dx, y + dy
+
+            # 아직 방문한 적이 없으면서 갈 수 있는 곳이라면
+            # 새로 queue에 넣어주고 방문 여부를 표시해줍니다. 
+            if can_go(nx, ny):
+                q.append((nx, ny))
+                visited[nx][ny] = True
+
+
+def calc():
+    for x, y in selected_stones:
+        a[x][y] = 0
+	
+    for i in range(n):
+        for j in range(n):
+            visited[i][j] = False
+		
+    # k개의 시작점을 queue에 넣고 시작합니다.
+	# BFS는 여러 시작점에서 시작하여
+    # 이동 가능한 칸을 전부 탐색하는 것이 가능합니다.
+    for x, y in s_pos:
+        q.append((x, y))
+        visited[x][y] = True
+
+    bfs()
+	
+    for x, y in selected_stones:
+        a[x][y] = 1
+        
+    cnt = 0
+    for i in range(n):
+        for j in range(n):
+            if visited[i][j]:
+                cnt += 1
+    
+    return cnt
+
+
+def find_max(idx, cnt):
+    global ans
+    
+    if idx == len(stone_pos):
+        if cnt == m:
+            ans = max(ans, calc())
+        return
+
+    selected_stones.append(stone_pos[idx])
+    find_max(idx + 1, cnt + 1)
+    selected_stones.pop()
+	
+    find_max(idx + 1, cnt)
+
+
+for _ in range(k):
+    r, c = tuple(map(int, input().split()))
+    s_pos.append((r - 1, c - 1))
+    
+find_max(0, 0)
+print(ans)
+```
+</div>
+</details>
+
+---
+
+
+
 ## (3) 가중치가 동일한 그래프에서의 BFS
 
 **오답 문제 1 : 000**
